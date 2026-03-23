@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primo PI Assistant™</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #0A1628;
+  --navy-mid: #162238;
+  --navy-light: #1E3352;
+  --gold: #C9A84C;
+  --gold-light: #E2C46E;
+  --gold-pale: #FBF5E6;
+  --white: #FFFFFF;
+  --bg: #F4F2ED;
+  --bg2: #ECEAE4;
+  --border: rgba(10,22,40,0.1);
+  --border-mid: rgba(10,22,40,0.18);
+  --text: #0A1628;
+  --text-mid: #3A4E68;
+  --text-muted: #6A7E98;
+  --teal: #0F6E56;
+  --teal-light: #E1F5EE;
+  --teal-mid: #1D9E75;
+  --coral: #993C1D;
+  --coral-light: #FAECE7;
+  --blue: #185FA5;
+  --blue-light: #E6F1FB;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --purple: #534AB7;
+  --purple-light: #EEEDFE;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --shadow: 0 2px 12px rgba(10,22,40,0.08);
+  --shadow-lg: 0 8px 32px rgba(10,22,40,0.14);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--navy);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 36px; height: 36px;
+  background: var(--gold);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; color: var(--navy); font-weight: 400;
+  flex-shrink: 0;
+}
+.brand-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; color: var(--white); font-weight: 400;
+  letter-spacing: -0.2px;
+}
+.brand-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; letter-spacing: 0.3px; }
+.header-badge {
+  font-size: 10px; font-weight: 600;
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(201,168,76,0.15);
+  color: var(--gold-light);
+  border: 1px solid rgba(201,168,76,0.25);
+  letter-spacing: 0.4px; text-transform: uppercase;
+}
+
+/* ── TAB SWITCHER ── */
+.tab-switcher {
+  display: flex;
+  gap: 0;
+  background: var(--navy-mid);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 2rem;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 0 1.5rem;
+  height: 48px;
+  background: none; border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.tab-btn:hover { color: rgba(255,255,255,0.75); }
+.tab-btn.active { color: var(--gold-light); border-bottom-color: var(--gold); }
+.tab-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.dot-owner { background: #5DCAA5; }
+.dot-sme { background: #8B7FE0; }
+
+/* ── LAYOUT ── */
+.app-body {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: calc(100vh - 112px);
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px; font-weight: 400; color: var(--text);
+}
+.sidebar-header p { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+.progress-track {
+  padding: 1rem 1.25rem;
+  flex: 1;
+  overflow-y: auto;
+}
+.stage-step {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.stage-step:hover { background: var(--bg); }
+.stage-step.active { background: var(--gold-pale); }
+.stage-step.completed .step-num { background: var(--teal-mid); color: white; }
+.step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--bg2);
+  color: var(--text-muted);
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+  transition: all 0.2s;
+}
+.stage-step.active .step-num { background: var(--gold); color: var(--navy); }
+.step-info h4 { font-size: 13px; font-weight: 500; color: var(--text); }
+.step-info p { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.stage-step.active .step-info h4 { color: var(--navy); font-weight: 600; }
+
+.connector {
+  width: 1px; height: 12px;
+  background: var(--border-mid);
+  margin-left: 21px; margin-bottom: 4px;
+}
+
+.sidebar-footer {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.reset-btn {
+  width: 100%; padding: 8px;
+  background: none; border: 1px solid var(--border-mid);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.reset-btn:hover { background: var(--bg); color: var(--text); border-color: var(--border-mid); }
+
+/* ── CHAT AREA ── */
+.chat-area {
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+  display: flex; flex-direction: column; gap: 1rem;
+  scroll-behavior: smooth;
+}
+
+/* Messages */
+.msg {
+  display: flex; gap: 10px; align-items: flex-start;
+  animation: fadeUp 0.25s ease both;
+}
+.msg.user { flex-direction: row-reverse; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+  flex-shrink: 0; margin-top: 2px;
+}
+.avatar-bot-owner { background: var(--teal-light); color: var(--teal); }
+.avatar-bot-sme { background: var(--purple-light); color: var(--purple); }
+.avatar-user { background: var(--navy); color: var(--gold); font-size: 11px; }
+
+.msg-bubble {
+  max-width: 72%;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  font-size: 14px; line-height: 1.6;
+}
+.msg.bot .msg-bubble {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top-left-radius: 4px;
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.msg.user .msg-bubble {
+  background: var(--navy);
+  color: white;
+  border-top-right-radius: 4px;
+}
+
+.msg-bubble strong { font-weight: 600; }
+.msg-bubble .q-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 5px;
+  display: block;
+}
+.msg-bubble .highlight {
+  background: var(--gold-pale);
+  border-left: 3px solid var(--gold);
+  padding: 8px 10px;
+  border-radius: 0 6px 6px 0;
+  margin: 8px 0;
+  font-size: 13px;
+}
+.msg-bubble .grc-flag {
+  background: var(--teal-light);
+  border: 1px solid rgba(29,158,117,0.25);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px; color: var(--teal);
+  margin-top: 8px; display: flex; gap: 6px; align-items: flex-start;
+}
+
+/* Quick reply chips */
+.quick-replies {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 10px;
+}
+.chip {
+  padding: 5px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border-mid);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500; color: var(--text-mid);
+  cursor: pointer; transition: all 0.15s;
+  white-space: nowrap;
+}
+.chip:hover { background: var(--gold-pale); border-color: var(--gold); color: var(--navy); }
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex; gap: 4px; align-items: center;
+  padding: 12px 14px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  border-top-left-radius: 4px;
+  width: fit-content;
+  box-shadow: var(--shadow);
+}
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-muted);
+  animation: typingBounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Report card */
+.report-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-top: 8px;
+  box-shadow: var(--shadow);
+}
+.report-header {
+  background: var(--navy);
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.report-header span { font-size: 12px; font-weight: 600; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.4px; }
+.report-body { padding: 12px 14px; }
+.report-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.report-row:last-child { border-bottom: none; }
+.report-key { color: var(--text-muted); min-width: 140px; flex-shrink: 0; font-size: 12px; }
+.report-val { color: var(--text); font-weight: 500; }
+.download-btn {
+  margin: 10px 14px 12px;
+  padding: 7px 14px;
+  background: var(--navy);
+  color: var(--gold-light);
+  border: none; border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: background 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.download-btn:hover { background: var(--navy-light); }
+
+/* ── INPUT AREA ── */
+.chat-input-area {
+  padding: 1rem 2rem 1.25rem;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+}
+.input-row {
+  display: flex; gap: 8px; align-items: flex-end;
+}
+.input-wrap {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  display: flex; align-items: flex-end;
+  transition: border-color 0.15s;
+  padding: 8px 12px;
+}
+.input-wrap:focus-within { border-color: var(--gold); background: var(--white); }
+#chatInput {
+  flex: 1; border: none; background: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--text);
+  resize: none; outline: none;
+  max-height: 120px; min-height: 22px;
+  line-height: 1.5;
+}
+#chatInput::placeholder { color: var(--text-muted); }
+.send-btn {
+  width: 38px; height: 38px;
+  background: var(--navy); border: none;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.15s;
+  flex-shrink: 0;
+}
+.send-btn:hover { background: var(--navy-light); }
+.send-btn:disabled { background: var(--bg2); cursor: not-allowed; }
+.send-btn svg { width: 16px; height: 16px; fill: white; }
+.send-btn:disabled svg { fill: var(--text-muted); }
+
+.input-hint {
+  font-size: 11px; color: var(--text-muted);
+  margin-top: 6px; text-align: center;
+}
+
+/* ── TAB PANELS ── */
+.tab-panel { display: none; height: 100%; }
+.tab-panel.active { display: flex; height: 100%; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
+
+/* ── METRIC CHIPS ── */
+.metric-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-top: 8px;
+}
+.metric-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.metric-card .m-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
+.metric-card .m-val { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.2; margin-top: 2px; }
+.metric-card .m-sub { font-size: 11px; color: var(--teal-mid); margin-top: 2px; }
+
+/* GRC tag row */
+.grc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.grc-tag {
+  font-size: 11px; font-weight: 500;
+  padding: 3px 8px; border-radius: 12px;
+  background: var(--teal-light); color: var(--teal);
+  border: 1px solid rgba(15,110,86,0.2);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="brand">
+    <div class="logo">P</div>
+    <div>
+      <div class="brand-name">Primo PI Assistant™</div>
+      <div class="brand-sub">Process Improvement Chatbots</div>
+    </div>
+  </div>
+  <div class="header-badge">Branding Placeholder</div>
+</div>
+
+<!-- TAB SWITCHER -->
+<div class="tab-switcher">
+  <button class="tab-btn active" onclick="switchTab('owner', this)">
+    <span class="tab-dot dot-owner"></span>
+    Process Owner Bot
+  </button>
+  <button class="tab-btn" onclick="switchTab('sme', this)">
+    <span class="tab-dot dot-sme"></span>
+    PI SME Bot — AI Powered
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PROCESS OWNER BOT
+══════════════════════════════════════════ -->
+<div id="panel-owner" class="tab-panel active">
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>Primo Intake</h2>
+        <p>Guided process capture — plain language</p>
+      </div>
+      <div class="progress-track" id="owner-progress">
+        <div class="stage-step active" id="ostep-0">
+          <div class="step-num">1</div>
+          <div class="step-info"><h4>Process Basics</h4><p>Name, department, purpose</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="ostep-1">
+          <div class="step-num">2</div>
+          <div class="step-info"><h4>Pain Points</h4><p>Problems &amp; who's affected</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="ostep-2">
+          <div class="step-num">3</div>
+          <div class="step-info"><h4>Volume &amp; Frequency</h4><p>How often, how many</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="ostep-3">
+          <div class="step-num">4</div>
+          <div class="step-info"><h4>Business Impact</h4><p>Urgency &amp; leadership support</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="ostep-4">
+          <div class="step-num">5</div>
+          <div class="step-info"><h4>Triage &amp; Report</h4><p>Priority score &amp; handoff</p></div>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="reset-btn" onclick="resetOwner()">↺ Start over</button>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="chat-area">
+      <div class="chat-messages" id="owner-messages"></div>
+      <div class="chat-input-area">
+        <div class="input-row">
+          <div class="input-wrap">
+            <textarea id="ownerInput" placeholder="Type your answer here..." rows="1"
+              onkeydown="handleKey(event,'owner')" oninput="autoResize(this)"></textarea>
+          </div>
+          <button class="send-btn" id="owner-send" onclick="sendOwner()">
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PI SME BOT
+══════════════════════════════════════════ -->
+<div id="panel-sme" class="tab-panel">
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>PI SME Expert Bot</h2>
+        <p>AI-powered · Leanbotics™ · GRC Banking</p>
+      </div>
+      <div class="progress-track">
+        <div class="stage-step active" id="sstep-0">
+          <div class="step-num">1</div>
+          <div class="step-info"><h4>Process Mapping</h4><p>Steps, handoffs &amp; systems</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="sstep-1">
+          <div class="step-num">2</div>
+          <div class="step-info"><h4>Lean Waste Analysis</h4><p>8 wastes identification</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="sstep-2">
+          <div class="step-num">3</div>
+          <div class="step-info"><h4>Leanbotics™ ROI</h4><p>Metrics &amp; calculator</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="sstep-3">
+          <div class="step-num">4</div>
+          <div class="step-info"><h4>GRC &amp; Compliance</h4><p>SOX · AML · OCC · Basel III</p></div>
+        </div>
+        <div class="connector"></div>
+        <div class="stage-step" id="sstep-4">
+          <div class="step-num">5</div>
+          <div class="step-info"><h4>Framework &amp; Action Plan</h4><p>Lean / DMAIC / Agile / BPM</p></div>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="reset-btn" onclick="resetSME()">↺ Start over</button>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="chat-area">
+      <div class="chat-messages" id="sme-messages"></div>
+      <div class="chat-input-area">
+        <div class="input-row">
+          <div class="input-wrap">
+            <textarea id="smeInput" placeholder="Describe the process or ask a question..." rows="1"
+              onkeydown="handleKey(event,'sme')" oninput="autoResize(this)"></textarea>
+          </div>
+          <button class="send-btn" id="sme-send" onclick="sendSME()">
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+          </button>
+        </div>
+        <div class="input-hint">Press Enter to send · Shift+Enter for new line · Powered by Claude AI</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function handleKey(e, bot) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    bot === 'owner' ? sendOwner() : sendSME();
+  }
+}
+function switchTab(which, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + which).classList.add('active');
+  btn.classList.add('active');
+}
+function scrollBottom(id) {
+  const el = document.getElementById(id);
+  el.scrollTop = el.scrollHeight;
+}
+function setStep(prefix, idx) {
+  document.querySelectorAll(`[id^="${prefix}step-"]`).forEach((s, i) => {
+    s.classList.remove('active', 'completed');
+    if (i < idx) s.classList.add('completed');
+    if (i === idx) s.classList.add('active');
+  });
+}
+
+// Detect GRC keywords
+function detectGRC(text) {
+  const flags = [];
+  const t = text.toLowerCase();
+  if (/loan|mortgage|lending|origination/.test(t)) flags.push('OCC / FFIEC');
+  if (/aml|kyc|bsa|suspicious|ofac|sanctions/.test(t)) flags.push('AML / KYC');
+  if (/audit|sox|financial report|reconcil/.test(t)) flags.push('SOX Controls');
+  if (/risk|capital|basel|operational/.test(t)) flags.push('Basel III');
+  if (/compliance|regulatory|exam|cra/.test(t)) flags.push('Regulatory');
+  return flags;
+}
+
+// ════════════════════════════════════════════
+// OWNER BOT — GUIDED Q&A
+// ════════════════════════════════════════════
+const ownerData = {};
+let ownerStep = 0;
+let ownerGRC = [];
+
+const ownerFlow = [
+  {
+    ask: `👋 Welcome to <strong>Primo Intake</strong> — I'm here to help you capture your process improvement request in a clear, structured way.<br><br>Let's start simple: <strong>What is the name of the process you'd like to improve?</strong>`,
+    key: 'processName',
+    chips: ['Loan origination review', 'New hire onboarding', 'Monthly reconciliation', 'Account opening']
+  },
+  {
+    ask: (d) => `Great — <strong>${d.processName}</strong>. Which <strong>department or business unit</strong> owns this process?`,
+    key: 'department',
+    chips: ['Operations', 'Compliance', 'Lending', 'Finance', 'HR', 'Risk Management']
+  },
+  {
+    ask: `In one or two sentences, <strong>what does this process accomplish?</strong> What's its main purpose?`,
+    key: 'purpose'
+  },
+  {
+    ask: `Who are the <strong>main people involved</strong> — internally and with customers or vendors?`,
+    key: 'stakeholders',
+    chips: ['Internal team only', 'Internal + customers', 'Internal + vendors', 'All three']
+  },
+  {
+    ask: `What <strong>systems or tools</strong> are used in this process today? (e.g., Encompass, Salesforce, Excel, paper forms)`,
+    key: 'systems',
+    chips: ['Excel / manual', 'Core banking system', 'Salesforce / CRM', 'Mix of systems']
+  },
+  {
+    ask: `Now the important part — <strong>what's the main problem or frustration</strong> with this process right now?`,
+    key: 'painPoint',
+    step: 1
+  },
+  {
+    ask: `<strong>Who is most affected</strong> by this problem?`,
+    key: 'affected',
+    chips: ['My team', 'Our customers', 'Leadership / reporting', 'All of the above']
+  },
+  {
+    ask: `<strong>How often</strong> does this process run?`,
+    key: 'frequency',
+    chips: ['Daily', 'Weekly', 'Monthly', 'Per transaction / on demand'],
+    step: 2
+  },
+  {
+    ask: `Roughly <strong>how many transactions or people</strong> does it handle in a typical month?`,
+    key: 'volume',
+    chips: ['Under 100', '100–500', '500–2,000', '2,000+']
+  },
+  {
+    ask: `If this process was improved, <strong>what would be the biggest win</strong> for your team or customers?`,
+    key: 'biggestWin',
+    step: 3
+  },
+  {
+    ask: `On a scale of <strong>1–5, how urgent</strong> is it to fix this? (1 = low priority, 5 = business critical)`,
+    key: 'urgency',
+    chips: ['1 — Low priority', '2 — Moderate', '3 — Important', '4 — High priority', '5 — Business critical']
+  },
+  {
+    ask: `Do you have <strong>leadership support</strong> to make changes to this process?`,
+    key: 'leadershipSupport',
+    chips: ['Yes — full support', 'Partial — some buy-in', 'Not yet — need to build case', 'Unknown']
+  },
+  {
+    ask: `Last question — is your goal to <strong>improve the process as-is</strong>, or are you also open to <strong>automating parts of it</strong>?`,
+    key: 'automationInterest',
+    chips: ['Improve process only', 'Open to automation', 'Automation is the goal', 'Not sure yet'],
+    step: 4
+  }
+];
+
+function appendMsg(containerId, role, html, avatarClass) {
+  const el = document.getElementById(containerId);
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = `msg-avatar ${avatarClass}`;
+  avatar.textContent = role === 'user' ? 'YOU' : 'P';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = html;
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  el.appendChild(wrap);
+  scrollBottom(containerId);
+  return bubble;
+}
+
+function addChips(containerId, chips, onSelect) {
+  const el = document.getElementById(containerId);
+  const wrap = document.createElement('div');
+  wrap.className = 'quick-replies';
+  chips.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = c;
+    btn.onclick = () => { wrap.remove(); onSelect(c); };
+    wrap.appendChild(btn);
+  });
+  el.lastElementChild?.querySelector('.msg-bubble')?.appendChild(wrap);
+  scrollBottom(containerId);
+}
+
+function askOwnerQuestion(idx) {
+  if (idx >= ownerFlow.length) { generateOwnerReport(); return; }
+  const q = ownerFlow[idx];
+  if (q.step !== undefined) setStep('o', q.step);
+  const text = typeof q.ask === 'function' ? q.ask(ownerData) : q.ask;
+  appendMsg('owner-messages', 'bot', text, 'avatar-bot-owner');
+  if (q.chips) addChips('owner-messages', q.chips, val => processOwnerAnswer(val));
+  scrollBottom('owner-messages');
+}
+
+function processOwnerAnswer(val) {
+  const q = ownerFlow[ownerStep];
+  ownerData[q.key] = val;
+  appendMsg('owner-messages', 'user', val, 'avatar-user');
+
+  // GRC detection on pain point and process name
+  if (q.key === 'painPoint' || q.key === 'processName') {
+    const flags = detectGRC(val + ' ' + (ownerData.processName || ''));
+    if (flags.length) {
+      ownerGRC = [...new Set([...ownerGRC, ...flags])];
+    }
+  }
+
+  ownerStep++;
+  setTimeout(() => askOwnerQuestion(ownerStep), 500);
+}
+
+function sendOwner() {
+  const inp = document.getElementById('ownerInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  inp.value = ''; inp.style.height = 'auto';
+  processOwnerAnswer(val);
+}
+
+function generateOwnerReport() {
+  setStep('o', 4);
+  // Score urgency
+  const urgencyNum = parseInt(ownerData.urgency) || 3;
+  const priority = urgencyNum >= 4 ? 'HIGH' : urgencyNum === 3 ? 'MEDIUM' : 'LOW';
+  const priorityColor = urgencyNum >= 4 ? '#D85A30' : urgencyNum === 3 ? '#BA7517' : '#1D9E75';
+
+  // Pathway
+  const autoInterest = ownerData.automationInterest || '';
+  const pathway = autoInterest.toLowerCase().includes('automat') ? 'PI + Automation Track' : 'Process Improvement Track';
+
+  let grcHtml = '';
+  if (ownerGRC.length) {
+    grcHtml = `<div class="grc-tags" style="margin-top:8px;">${ownerGRC.map(g => `<span class="grc-tag">🔒 ${g}</span>`).join('')}</div>`;
+  }
+
+  const reportHtml = `
+    <div class="report-card">
+      <div class="report-header">
+        <span>Primo Intake Report</span>
+        <span style="font-size:11px; color:rgba(255,255,255,0.5);">${new Date().toLocaleDateString()}</span>
+      </div>
+      <div class="report-body">
+        <div class="report-row"><span class="report-key">Process</span><span class="report-val">${ownerData.processName || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Department</span><span class="report-val">${ownerData.department || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Purpose</span><span class="report-val">${ownerData.purpose || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Stakeholders</span><span class="report-val">${ownerData.stakeholders || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Systems</span><span class="report-val">${ownerData.systems || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Pain Point</span><span class="report-val">${ownerData.painPoint || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Affected Parties</span><span class="report-val">${ownerData.affected || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Frequency</span><span class="report-val">${ownerData.frequency || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Monthly Volume</span><span class="report-val">${ownerData.volume || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Expected Win</span><span class="report-val">${ownerData.biggestWin || '—'}</span></div>
+        <div class="report-row"><span class="report-key">Leadership Support</span><span class="report-val">${ownerData.leadershipSupport || '—'}</span></div>
+        <div class="report-row"><span class="report-key">PI Priority</span><span class="report-val" style="color:${priorityColor}; font-weight:600;">${priority}</span></div>
+        <div class="report-row"><span class="report-key">Recommended Path</span><span class="report-val">${pathway}</span></div>
+      </div>
+      ${grcHtml ? `<div style="padding:0 14px 4px;">${grcHtml}</div>` : ''}
+      <button class="download-btn" onclick="downloadReport()">↓ Download Report</button>
+    </div>`;
+
+  appendMsg('owner-messages', 'bot',
+    `Your <strong>Primo Intake Report</strong> is ready. ${ownerGRC.length ? `I also flagged <strong>${ownerGRC.join(', ')}</strong> compliance considerations based on your answers.` : ''} This is ready to hand off to your PI SME.${reportHtml}`,
+    'avatar-bot-owner');
+
+  setTimeout(() => {
+    appendMsg('owner-messages', 'bot',
+      `<strong>What would you like to do next?</strong><div class="quick-replies"><button class="chip" onclick="switchTab('sme', document.querySelectorAll('.tab-btn')[1])">→ Move to PI SME Bot</button><button class="chip" onclick="resetOwner()">Start a new process</button></div>`,
+      'avatar-bot-owner');
+  }, 800);
+}
+
+function downloadReport() {
+  const lines = Object.entries(ownerData).map(([k,v]) => `${k}: ${v}`).join('\n');
+  const blob = new Blob([`PRIMO INTAKE REPORT\nPrimus Pipeline™\n${new Date().toLocaleDateString()}\n\n${lines}\n\nGRC Flags: ${ownerGRC.join(', ') || 'None'}`], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `Primo-Intake-${ownerData.processName || 'Report'}.txt`; a.click();
+}
+
+function resetOwner() {
+  ownerStep = 0; ownerGRC = [];
+  Object.keys(ownerData).forEach(k => delete ownerData[k]);
+  document.getElementById('owner-messages').innerHTML = '';
+  setStep('o', 0);
+  setTimeout(() => askOwnerQuestion(0), 300);
+}
+
+// ════════════════════════════════════════════
+// PI SME BOT — CLAUDE AI POWERED
+// ════════════════════════════════════════════
+const smeHistory = [];
+let smeThinking = false;
+
+const SME_SYSTEM = `You are the PI SME Expert Bot for Primo PI Assistant™, built by Primus Software Corporation. You are an expert process improvement consultant specializing in banking and financial services.
+
+Your role: Guide PI (Process Improvement) professionals through a structured expert assessment covering:
+1. Process mapping (steps, handoffs, decision points, systems)
+2. Lean waste analysis (8 wastes: waiting, defects, overproduction, over-processing, transport, inventory, motion, non-utilized talent)
+3. Leanbotics™ ROI Calculator inputs (cycle time, FTE count, defect rate, first pass yield, volume, cost per FTE, SLA breach rate) — calculate savings when data is provided
+4. GRC & Banking compliance layer (SOX, Basel III operational risk, OCC/FFIEC, AML/KYC, audit trail mapping)
+5. Framework recommendation (Lean, Six Sigma DMAIC, Agile/Scrum, or BPM redesign) and 90-day action plan
+
+Tone: Technical, peer-level, consultative. You speak to professionals — use proper PI terminology.
+
+Key behaviors:
+- Ask focused, specific questions — one topic at a time
+- When you have enough metric data (cycle time, FTE, defect rate, volume), proactively calculate and display the Leanbotics™ ROI (time savings, FTE savings, cost savings, BCR ratio)
+- Flag GRC/compliance implications automatically when banking process types are mentioned
+- After gathering sufficient information, recommend the most appropriate improvement framework and provide a concrete 90-day action plan
+- Keep responses concise and structured — use bullet points and labels where helpful
+- Reference Primo PI Assistant™ stages naturally in conversation
+- Do NOT include PrimeOne or POPPI scoring — that has been removed from scope
+
+When calculating Leanbotics™ ROI, use:
+- Time savings = (current cycle time - target cycle time) × monthly volume
+- FTE savings = current FTE × estimated efficiency gain %
+- Annual cost savings = FTE savings × avg FTE cost
+- BCR = total annual benefit / implementation cost (if provided)
+- Sigma level = use DPMO table approximation if defect rate given
+
+Format metric outputs clearly with labels and values.`;
+
+async function sendSME() {
+  if (smeThinking) return;
+  const inp = document.getElementById('smeInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  inp.value = ''; inp.style.height = 'auto';
+
+  appendMsg('sme-messages', 'user', val, 'avatar-user');
+  smeHistory.push({ role: 'user', content: val });
+
+  // GRC sidebar highlight
+  const grcFlags = detectGRC(val);
+  if (grcFlags.length) {
+    document.getElementById('sstep-3').classList.add('active');
+  }
+
+  smeThinking = true;
+  document.getElementById('sme-send').disabled = true;
+
+  // Typing indicator
+  const typingWrap = document.createElement('div');
+  typingWrap.className = 'msg bot';
+  typingWrap.innerHTML = `<div class="msg-avatar avatar-bot-sme">P</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  document.getElementById('sme-messages').appendChild(typingWrap);
+  scrollBottom('sme-messages');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SME_SYSTEM,
+        messages: smeHistory
+      })
+    });
+    const data = await res.json();
+    typingWrap.remove();
+
+    const reply = data.content?.map(b => b.text || '').join('') || 'I encountered an issue. Please try again.';
+    smeHistory.push({ role: 'assistant', content: reply });
+
+    // Format reply — convert markdown-ish to HTML
+    const formatted = reply
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n- /g, '<br>• ')
+      .replace(/\n(\d+)\. /g, '<br>$1. ');
+
+    appendMsg('sme-messages', 'bot', formatted, 'avatar-bot-sme');
+
+    // Update sidebar progress heuristically
+    const lower = reply.toLowerCase();
+    if (lower.includes('waste') || lower.includes('lean')) setStep('s', 1);
+    if (lower.includes('cycle time') || lower.includes('fte') || lower.includes('roi') || lower.includes('leanbotics')) setStep('s', 2);
+    if (lower.includes('sox') || lower.includes('aml') || lower.includes('occ') || lower.includes('compliance')) setStep('s', 3);
+    if (lower.includes('action plan') || lower.includes('dmaic') || lower.includes('recommend') || lower.includes('90-day')) setStep('s', 4);
+
+  } catch(e) {
+    typingWrap.remove();
+    appendMsg('sme-messages', 'bot', 'There was a connection issue. Please check your network and try again.', 'avatar-bot-sme');
+  }
+
+  smeThinking = false;
+  document.getElementById('sme-send').disabled = false;
+  document.getElementById('smeInput').focus();
+}
+
+function resetSME() {
+  smeHistory.length = 0;
+  smeThinking = false;
+  document.getElementById('sme-send').disabled = false;
+  document.getElementById('sme-messages').innerHTML = '';
+  setStep('s', 0);
+  setTimeout(() => initSME(), 300);
+}
+
+function initSME() {
+  appendMsg('sme-messages', 'bot',
+    `Welcome to the <strong>PI SME Expert Bot</strong> — powered by Claude AI.<br><br>I'm your process improvement analyst for the <strong>Primo PI Assistant™</strong>. I'll guide you through a full assessment covering:<br><br>• Process mapping &amp; waste identification (Lean 8 wastes)<br>• <strong>Leanbotics™ ROI Calculator</strong> — cycle time, FTE savings, defect rate, BCR<br>• <strong>GRC Banking Layer</strong> — SOX, AML/KYC, OCC/FFIEC, Basel III<br>• Framework recommendation (Lean, DMAIC, Agile, BPM) + 90-day action plan<br><br><strong>Let's start: Tell me about the process you're assessing. What is it, and what's the core problem you've been asked to solve?</strong>`,
+    'avatar-bot-sme');
+
+  const chips = ['Start from a Primo Intake report', 'I have a specific process to analyze', 'I need to run the Leanbotics™ ROI calculator', 'I need a GRC compliance review'];
+  addChips('sme-messages', chips, val => {
+    document.getElementById('smeInput').value = val;
+    sendSME();
+  });
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+window.onload = () => {
+  askOwnerQuestion(0);
+  initSME();
+};
+</script>
+</body>
+</html>
