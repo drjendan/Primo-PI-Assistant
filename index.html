@@ -4,969 +4,660 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Primo PI Assistant™</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#3E7E5E;--green-dark:#2D5E45;--green-darker:#1E4530;
+  --green-light:#E8F2EC;--green-pale:#F0F5F2;--green-mid:#5A9E7A;
+  --red:#CC0000;--white:#FFFFFF;--bg:#F0F5F2;--bg2:#E4EDE8;
+  --border:rgba(62,126,94,0.15);--border-mid:rgba(62,126,94,0.25);
+  --text:#1A2E22;--text-mid:#3A5A48;--text-muted:#6A8A78;--text-hint:#9AB0A2;
+  --amber:#B07A15;--amber-light:#FAF0DA;--blue:#1A5FA5;--blue-light:#E6F0FB;
+  --radius:8px;--radius-lg:12px;
+  --shadow:0 1px 6px rgba(30,69,48,0.1);--shadow-lg:0 4px 20px rgba(30,69,48,0.15);
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
 
-:root {
-  --navy: #0A1628;
-  --navy-mid: #162238;
-  --navy-light: #1E3352;
-  --gold: #C9A84C;
-  --gold-light: #E2C46E;
-  --gold-pale: #FBF5E6;
-  --white: #FFFFFF;
-  --bg: #F4F2ED;
-  --bg2: #ECEAE4;
-  --border: rgba(10,22,40,0.1);
-  --border-mid: rgba(10,22,40,0.18);
-  --text: #0A1628;
-  --text-mid: #3A4E68;
-  --text-muted: #6A7E98;
-  --teal: #0F6E56;
-  --teal-light: #E1F5EE;
-  --teal-mid: #1D9E75;
-  --coral: #993C1D;
-  --coral-light: #FAECE7;
-  --blue: #185FA5;
-  --blue-light: #E6F1FB;
-  --amber: #BA7517;
-  --amber-light: #FAEEDA;
-  --purple: #534AB7;
-  --purple-light: #EEEDFE;
-  --radius: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 22px;
-  --shadow: 0 2px 12px rgba(10,22,40,0.08);
-  --shadow-lg: 0 8px 32px rgba(10,22,40,0.14);
-}
+.header{background:var(--white);border-bottom:1px solid var(--border);padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:var(--shadow);}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:40px;height:40px;background:var(--green-light);border:2px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-name{font-size:16px;font-weight:700;color:var(--green-dark);line-height:1;}
+.logo-sub{font-size:9px;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;margin-top:2px;}
+.primeone-badge{font-size:13px;font-weight:700;color:var(--red);letter-spacing:-0.3px;}
+.primeone-badge span{display:inline-block;width:14px;height:14px;background:var(--red);border-radius:50%;color:white;font-size:9px;font-weight:700;text-align:center;line-height:14px;margin:0 1px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.version-tag{font-size:11px;color:var(--text-muted);}
+.new-conv-btn{padding:7px 14px;background:var(--green);color:white;border:none;border-radius:20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s;}
+.new-conv-btn:hover{background:var(--green-dark);}
 
-html, body {
-  height: 100%;
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 15px;
-  line-height: 1.6;
-}
+.workflow-tabs{background:var(--white);border-bottom:2px solid var(--border);display:flex;padding:0 1.5rem;}
+.wf-tab{padding:0 1.5rem;height:44px;background:none;border:none;border-bottom:3px solid transparent;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;margin-bottom:-2px;transition:all 0.2s;}
+.wf-tab:hover{color:var(--green);}
+.wf-tab.active{color:var(--green-dark);border-bottom-color:var(--green);font-weight:600;}
+.wf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-pi{background:var(--green);}
+.dot-auto{background:var(--red);}
 
-/* ── HEADER ── */
-.header {
-  background: var(--navy);
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 64px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.brand { display: flex; align-items: center; gap: 12px; }
-.logo {
-  width: 36px; height: 36px;
-  background: var(--gold);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'DM Serif Display', serif;
-  font-size: 18px; color: var(--navy); font-weight: 400;
-  flex-shrink: 0;
-}
-.brand-name {
-  font-family: 'DM Serif Display', serif;
-  font-size: 18px; color: var(--white); font-weight: 400;
-  letter-spacing: -0.2px;
-}
-.brand-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; letter-spacing: 0.3px; }
-.header-badge {
-  font-size: 10px; font-weight: 600;
-  padding: 4px 10px; border-radius: 20px;
-  background: rgba(201,168,76,0.15);
-  color: var(--gold-light);
-  border: 1px solid rgba(201,168,76,0.25);
-  letter-spacing: 0.4px; text-transform: uppercase;
-}
+.app-body{display:grid;grid-template-columns:240px 1fr;height:calc(100vh - 104px);}
 
-/* ── TAB SWITCHER ── */
-.tab-switcher {
-  display: flex;
-  gap: 0;
-  background: var(--navy-mid);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 0 2rem;
-  overflow-x: auto;
-}
-.tab-btn {
-  padding: 0 1.5rem;
-  height: 48px;
-  background: none; border: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px; font-weight: 500;
-  color: rgba(255,255,255,0.45);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-  transition: all 0.2s;
-  display: flex; align-items: center; gap: 8px;
-}
-.tab-btn:hover { color: rgba(255,255,255,0.75); }
-.tab-btn.active { color: var(--gold-light); border-bottom-color: var(--gold); }
-.tab-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-}
-.dot-owner { background: #5DCAA5; }
-.dot-sme { background: #8B7FE0; }
+.sidebar{background:var(--green);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto;}
+.nav-section-label{font-size:10px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.6px;padding:0.75rem 1rem 0.25rem;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1rem;color:rgba(255,255,255,0.8);font-size:13px;cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.1);color:white;}
+.nav-item.active{background:rgba(255,255,255,0.15);color:white;font-weight:600;border-left-color:white;}
+.nav-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0;}
+.nav-check{font-size:12px;margin-left:auto;color:rgba(255,255,255,0.3);}
+.nav-item.completed .nav-check{color:#7DD9AA;}
+.sidebar-footer{padding:0.75rem 1rem;border-top:1px solid rgba(255,255,255,0.15);font-size:11px;color:rgba(255,255,255,0.4);text-align:center;}
 
-/* ── LAYOUT ── */
-.app-body {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  height: calc(100vh - 112px);
-}
+.content-area{display:flex;flex-direction:column;background:var(--bg);overflow:hidden;}
+.view{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.view.active{display:flex;}
 
-/* ── SIDEBAR ── */
-.sidebar {
-  background: var(--white);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-.sidebar-header {
-  padding: 1.25rem 1.25rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-.sidebar-header h2 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 16px; font-weight: 400; color: var(--text);
-}
-.sidebar-header p { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.chat-messages{flex:1;overflow-y:auto;padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:0.75rem;scroll-behavior:smooth;}
+.msg{display:flex;gap:8px;align-items:flex-start;animation:fadeUp 0.2s ease both;}
+.msg.user{flex-direction:row-reverse;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.msg-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:2px;}
+.av-primo{background:var(--green-light);color:var(--green-dark);font-size:15px;}
+.av-user{background:var(--green-dark);color:white;font-size:10px;}
+.msg-bubble{max-width:75%;padding:9px 13px;border-radius:var(--radius-lg);font-size:13.5px;line-height:1.6;}
+.msg.bot .msg-bubble{background:var(--white);border:1px solid var(--border);border-top-left-radius:3px;color:var(--text);box-shadow:var(--shadow);}
+.msg.user .msg-bubble{background:var(--green-dark);color:white;border-top-right-radius:3px;}
+.msg-bubble strong{font-weight:600;}
 
-.progress-track {
-  padding: 1rem 1.25rem;
-  flex: 1;
-  overflow-y: auto;
-}
-.stage-step {
-  display: flex; gap: 10px; align-items: flex-start;
-  padding: 8px 10px;
-  border-radius: var(--radius);
-  margin-bottom: 4px;
-  cursor: pointer;
-  transition: background 0.15s;
-  position: relative;
-}
-.stage-step:hover { background: var(--bg); }
-.stage-step.active { background: var(--gold-pale); }
-.stage-step.completed .step-num { background: var(--teal-mid); color: white; }
-.step-num {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--bg2);
-  color: var(--text-muted);
-  font-size: 11px; font-weight: 600;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
-  transition: all 0.2s;
-}
-.stage-step.active .step-num { background: var(--gold); color: var(--navy); }
-.step-info h4 { font-size: 13px; font-weight: 500; color: var(--text); }
-.step-info p { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-.stage-step.active .step-info h4 { color: var(--navy); font-weight: 600; }
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.chip{padding:4px 11px;background:var(--green-pale);border:1px solid var(--border-mid);border-radius:16px;font-size:12px;font-weight:500;color:var(--green-dark);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.chip:hover{background:var(--green-light);border-color:var(--green);}
 
-.connector {
-  width: 1px; height: 12px;
-  background: var(--border-mid);
-  margin-left: 21px; margin-bottom: 4px;
-}
+.typing-ind{display:flex;gap:4px;align-items:center;padding:10px 13px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);border-top-left-radius:3px;width:fit-content;box-shadow:var(--shadow);}
+.t-dot{width:5px;height:5px;border-radius:50%;background:var(--text-muted);animation:tb 1.2s infinite;}
+.t-dot:nth-child(2){animation-delay:0.2s;}
+.t-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes tb{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-4px);opacity:1;}}
 
-.sidebar-footer {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid var(--border);
-}
-.reset-btn {
-  width: 100%; padding: 8px;
-  background: none; border: 1px solid var(--border-mid);
-  border-radius: var(--radius);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px; color: var(--text-muted);
-  cursor: pointer; transition: all 0.15s;
-}
-.reset-btn:hover { background: var(--bg); color: var(--text); border-color: var(--border-mid); }
+.grc-flag{background:var(--green-light);border:1px solid var(--border-mid);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--green-dark);margin-top:6px;display:flex;gap:6px;align-items:flex-start;}
 
-/* ── CHAT AREA ── */
-.chat-area {
-  display: flex; flex-direction: column;
-  background: var(--bg);
-  overflow: hidden;
-}
+/* ── INPUT — FULL WIDTH ── */
+.chat-input-wrap{padding:0.75rem 1.5rem 1rem;background:var(--white);border-top:1px solid var(--border);}
+.input-row{display:flex;gap:8px;align-items:flex-end;width:100%;}
+.textarea-wrap{flex:1;min-width:0;background:var(--bg);border:1.5px solid var(--border-mid);border-radius:var(--radius-lg);display:flex;align-items:flex-end;padding:8px 12px;transition:border-color 0.15s,background 0.15s;}
+.textarea-wrap:focus-within{border-color:var(--green);background:var(--white);}
+textarea{flex:1;width:100%;border:none;background:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--text);resize:none;outline:none;max-height:120px;min-height:22px;line-height:1.5;}
+textarea::placeholder{color:var(--text-hint);}
+.send-btn{width:38px;height:38px;flex-shrink:0;background:var(--green);border:none;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;}
+.send-btn:hover{background:var(--green-dark);}
+.send-btn:disabled{background:var(--bg2);cursor:not-allowed;}
+.send-btn svg{width:15px;height:15px;fill:white;}
+.send-btn:disabled svg{fill:var(--text-muted);}
+.input-hint{font-size:11px;color:var(--text-hint);margin-top:5px;text-align:center;}
 
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem 2rem;
-  display: flex; flex-direction: column; gap: 1rem;
-  scroll-behavior: smooth;
-}
+/* ── DASHBOARD ── */
+.dashboard-view{flex:1;overflow-y:auto;padding:1.25rem 1.5rem;}
+.dash-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.dash-subtitle{font-size:12px;color:var(--text-muted);margin-bottom:1rem;}
+.dash-nav{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.dash-nav-btn{padding:5px 12px;background:var(--white);border:1px solid var(--border-mid);border-radius:16px;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;transition:all 0.15s;}
+.dash-nav-btn.active,.dash-nav-btn:hover{background:var(--green);color:white;border-color:var(--green);}
 
-/* Messages */
-.msg {
-  display: flex; gap: 10px; align-items: flex-start;
-  animation: fadeUp 0.25s ease both;
-}
-.msg.user { flex-direction: row-reverse; }
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:1.25rem;}
+.metric-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;}
+.metric-card .m-label{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;}
+.metric-card .m-current{font-size:22px;font-weight:700;color:var(--text);line-height:1.1;margin-top:4px;}
+.metric-card .m-target{font-size:11px;color:var(--green);margin-top:3px;font-weight:500;}
+.metric-card .m-unit{font-size:11px;color:var(--text-hint);margin-top:1px;}
+.metric-card.warn{border-left:3px solid #E07020;}
+.metric-card.good{border-left:3px solid var(--green);}
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+.section-title{font-size:13px;font-weight:600;color:var(--text);}
+.section-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:0.3px;}
+.badge-green{background:var(--green-light);color:var(--green-dark);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-red{background:#FEE;color:var(--red);}
 
-.msg-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600;
-  flex-shrink: 0; margin-top: 2px;
-}
-.avatar-bot-owner { background: var(--teal-light); color: var(--teal); }
-.avatar-bot-sme { background: var(--purple-light); color: var(--purple); }
-.avatar-user { background: var(--navy); color: var(--gold); font-size: 11px; }
+.compare-section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:1rem;}
+.compare-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.compare-row{margin-bottom:12px;}
+.compare-row:last-child{margin-bottom:0;}
+.compare-label{font-size:12px;color:var(--text-mid);margin-bottom:4px;display:flex;justify-content:space-between;}
+.bar-wrap{display:flex;align-items:center;gap:8px;}
+.bar-label{font-size:10px;color:var(--text-hint);width:44px;flex-shrink:0;}
+.bar-track{flex:1;height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;}
+.bar-current{background:#E07020;}
+.bar-target{background:var(--green);}
+.bar-val{font-size:11px;font-weight:600;width:48px;text-align:right;flex-shrink:0;}
+.compare-bars{display:flex;flex-direction:column;gap:3px;}
 
-.msg-bubble {
-  max-width: 72%;
-  padding: 10px 14px;
-  border-radius: var(--radius-lg);
-  font-size: 14px; line-height: 1.6;
-}
-.msg.bot .msg-bubble {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-top-left-radius: 4px;
-  color: var(--text);
-  box-shadow: var(--shadow);
-}
-.msg.user .msg-bubble {
-  background: var(--navy);
-  color: white;
-  border-top-right-radius: 4px;
-}
+.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.roi-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;}
+.roi-card .r-label{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;}
+.roi-card .r-val{font-size:20px;font-weight:700;color:var(--green-dark);}
+.roi-card .r-sub{font-size:11px;color:var(--text-muted);}
+.roi-card.featured{background:var(--green-dark);border-color:var(--green-dark);}
+.roi-card.featured .r-label{color:rgba(255,255,255,0.6);}
+.roi-card.featured .r-val{color:white;}
+.roi-card.featured .r-sub{color:rgba(255,255,255,0.5);}
 
-.msg-bubble strong { font-weight: 600; }
-.msg-bubble .q-label {
-  font-size: 10px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 5px;
-  display: block;
-}
-.msg-bubble .highlight {
-  background: var(--gold-pale);
-  border-left: 3px solid var(--gold);
-  padding: 8px 10px;
-  border-radius: 0 6px 6px 0;
-  margin: 8px 0;
-  font-size: 13px;
-}
-.msg-bubble .grc-flag {
-  background: var(--teal-light);
-  border: 1px solid rgba(29,158,117,0.25);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 12px; color: var(--teal);
-  margin-top: 8px; display: flex; gap: 6px; align-items: flex-start;
-}
+.readiness-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:1rem;}
+.readiness-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.readiness-title{font-size:13px;font-weight:600;color:var(--text);}
+.readiness-score{font-size:24px;font-weight:700;color:var(--green-dark);}
+.factor-row{margin-bottom:8px;}
+.factor-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.factor-name{font-size:12px;color:var(--text-mid);}
+.factor-score{font-size:12px;font-weight:600;}
+.factor-bar{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.factor-fill{height:100%;border-radius:3px;background:var(--green);}
+.factor-fill.low{background:#E07020;}
+.factor-fill.mid{background:#C9A84C;}
 
-/* Quick reply chips */
-.quick-replies {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  margin-top: 10px;
-}
-.chip {
-  padding: 5px 12px;
-  background: var(--bg);
-  border: 1px solid var(--border-mid);
-  border-radius: 20px;
-  font-size: 12px; font-weight: 500; color: var(--text-mid);
-  cursor: pointer; transition: all 0.15s;
-  white-space: nowrap;
-}
-.chip:hover { background: var(--gold-pale); border-color: var(--gold); color: var(--navy); }
+.decision-gate{border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:1rem;display:flex;gap:12px;align-items:flex-start;}
+.decision-gate.proceed{background:var(--green-light);border:1px solid var(--border-mid);}
+.decision-gate.improve{background:#FEF3E2;border:1px solid rgba(224,112,32,0.3);}
+.decision-gate.not-ready{background:#FEE;border:1px solid rgba(204,0,0,0.2);}
+.gate-icon{font-size:22px;flex-shrink:0;}
+.gate-text h4{font-size:13px;font-weight:600;color:var(--text);}
+.gate-text p{font-size:12px;color:var(--text-mid);margin-top:3px;}
 
-/* Typing indicator */
-.typing-indicator {
-  display: flex; gap: 4px; align-items: center;
-  padding: 12px 14px;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  border-top-left-radius: 4px;
-  width: fit-content;
-  box-shadow: var(--shadow);
-}
-.typing-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--text-muted);
-  animation: typingBounce 1.2s infinite;
-}
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingBounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-5px); opacity: 1; }
-}
+.inv-table{width:100%;border-collapse:collapse;font-size:12px;}
+.inv-table th{background:var(--green-pale);padding:7px 10px;text-align:left;font-weight:600;color:var(--text-mid);font-size:11px;}
+.inv-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);}
+.inv-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--green-pale);}
+.inv-table .num{text-align:right;}
 
-/* Report card */
-.report-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  margin-top: 8px;
-  box-shadow: var(--shadow);
-}
-.report-header {
-  background: var(--navy);
-  padding: 10px 14px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.report-header span { font-size: 12px; font-weight: 600; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.4px; }
-.report-body { padding: 12px 14px; }
-.report-row {
-  display: flex; gap: 8px; align-items: flex-start;
-  padding: 5px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-}
-.report-row:last-child { border-bottom: none; }
-.report-key { color: var(--text-muted); min-width: 140px; flex-shrink: 0; font-size: 12px; }
-.report-val { color: var(--text); font-weight: 500; }
-.download-btn {
-  margin: 10px 14px 12px;
-  padding: 7px 14px;
-  background: var(--navy);
-  color: var(--gold-light);
-  border: none; border-radius: var(--radius);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px; font-weight: 500;
-  cursor: pointer; transition: background 0.15s;
-  display: inline-flex; align-items: center; gap: 6px;
-}
-.download-btn:hover { background: var(--navy-light); }
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border-mid);border-radius:4px;}
 
-/* ── INPUT AREA ── */
-.chat-input-area {
-  padding: 1rem 2rem 1.25rem;
-  background: var(--white);
-  border-top: 1px solid var(--border);
-}
-.input-row {
-  display: flex; gap: 8px; align-items: flex-end;
-}
-.input-wrap {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border-mid);
-  border-radius: var(--radius-lg);
-  display: flex; align-items: flex-end;
-  transition: border-color 0.15s;
-  padding: 8px 12px;
-}
-.input-wrap:focus-within { border-color: var(--gold); background: var(--white); }
-#chatInput {
-  flex: 1; border: none; background: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px; color: var(--text);
-  resize: none; outline: none;
-  max-height: 120px; min-height: 22px;
-  line-height: 1.5;
-}
-#chatInput::placeholder { color: var(--text-muted); }
-.send-btn {
-  width: 38px; height: 38px;
-  background: var(--navy); border: none;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: background 0.15s;
-  flex-shrink: 0;
-}
-.send-btn:hover { background: var(--navy-light); }
-.send-btn:disabled { background: var(--bg2); cursor: not-allowed; }
-.send-btn svg { width: 16px; height: 16px; fill: white; }
-.send-btn:disabled svg { fill: var(--text-muted); }
-
-.input-hint {
-  font-size: 11px; color: var(--text-muted);
-  margin-top: 6px; text-align: center;
-}
-
-/* ── TAB PANELS ── */
-.tab-panel { display: none; height: 100%; }
-.tab-panel.active { display: flex; height: 100%; }
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
-
-/* ── METRIC CHIPS ── */
-.metric-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 6px; margin-top: 8px;
-}
-.metric-card {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-}
-.metric-card .m-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; }
-.metric-card .m-val { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.2; margin-top: 2px; }
-.metric-card .m-sub { font-size: 11px; color: var(--teal-mid); margin-top: 2px; }
-
-/* GRC tag row */
-.grc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-.grc-tag {
-  font-size: 11px; font-weight: 500;
-  padding: 3px 8px; border-radius: 12px;
-  background: var(--teal-light); color: var(--teal);
-  border: 1px solid rgba(15,110,86,0.2);
-}
+.tab-panel{display:none;height:100%;}
+.tab-panel.active{display:flex;height:100%;}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
-  <div class="brand">
-    <div class="logo">P</div>
+  <div class="logo-wrap">
+    <div class="logo-icon">🤖</div>
     <div>
-      <div class="brand-name">Primo PI Assistant™</div>
-      <div class="brand-sub">Process Improvement Chatbots</div>
+      <div class="logo-name">Primo™</div>
+      <div class="logo-sub">Powered by PRIMUS</div>
     </div>
   </div>
-  <div class="header-badge">Branding Placeholder</div>
+  <div class="header-right">
+    <span class="version-tag">Primo PI Assistant™ · v2.0</span>
+    <div class="primeone-badge">PRIME<span>O</span>ne™</div>
+    <button class="new-conv-btn" onclick="resetAll()">+ New Conversation</button>
+  </div>
 </div>
 
-<!-- TAB SWITCHER -->
-<div class="tab-switcher">
-  <button class="tab-btn active" onclick="switchTab('owner', this)">
-    <span class="tab-dot dot-owner"></span>
-    Process Owner Bot
-  </button>
-  <button class="tab-btn" onclick="switchTab('sme', this)">
-    <span class="tab-dot dot-sme"></span>
-    PI SME Bot — AI Powered
-  </button>
+<div class="workflow-tabs">
+  <button class="wf-tab active" onclick="switchWorkflow('pi',this)"><span class="wf-dot dot-pi"></span>Process Improvement Agent</button>
+  <button class="wf-tab" onclick="switchWorkflow('auto',this)"><span class="wf-dot dot-auto"></span>Automation Agent</button>
 </div>
 
-<!-- ══════════════════════════════════════════
-     PROCESS OWNER BOT
-══════════════════════════════════════════ -->
-<div id="panel-owner" class="tab-panel active">
-  <div class="app-body">
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <h2>Primo Intake</h2>
-        <p>Guided process capture — plain language</p>
-      </div>
-      <div class="progress-track" id="owner-progress">
-        <div class="stage-step active" id="ostep-0">
-          <div class="step-num">1</div>
-          <div class="step-info"><h4>Process Basics</h4><p>Name, department, purpose</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="ostep-1">
-          <div class="step-num">2</div>
-          <div class="step-info"><h4>Pain Points</h4><p>Problems &amp; who's affected</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="ostep-2">
-          <div class="step-num">3</div>
-          <div class="step-info"><h4>Volume &amp; Frequency</h4><p>How often, how many</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="ostep-3">
-          <div class="step-num">4</div>
-          <div class="step-info"><h4>Business Impact</h4><p>Urgency &amp; leadership support</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="ostep-4">
-          <div class="step-num">5</div>
-          <div class="step-info"><h4>Triage &amp; Report</h4><p>Priority score &amp; handoff</p></div>
-        </div>
-      </div>
-      <div class="sidebar-footer">
-        <button class="reset-btn" onclick="resetOwner()">↺ Start over</button>
-      </div>
+<!-- PI WORKFLOW -->
+<div id="wf-pi" class="tab-panel active">
+<div class="app-body">
+  <div class="sidebar">
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Current State</div>
+      <div class="nav-item active" id="pi-nav-0">Process Basics<span class="nav-check" id="pi-chk-0">○</span></div>
+      <div class="nav-item" id="pi-nav-1">Time &amp; Volume<span class="nav-check" id="pi-chk-1">○</span></div>
+      <div class="nav-item" id="pi-nav-2">Resources &amp; Cost<span class="nav-check" id="pi-chk-2">○</span></div>
+      <div class="nav-item" id="pi-nav-3">Quality Metrics<span class="nav-check" id="pi-chk-3">○</span></div>
+      <div class="nav-item" id="pi-nav-4">Complexity<span class="nav-check" id="pi-chk-4">○</span></div>
+      <div class="nav-section-label">Target State</div>
+      <div class="nav-item" id="pi-nav-5">Improvement Targets<span class="nav-check" id="pi-chk-5">○</span></div>
+      <div class="nav-item" id="pi-nav-6">Investment Plan<span class="nav-check" id="pi-chk-6">○</span></div>
+      <div class="nav-section-label">Output</div>
+      <div class="nav-item" id="pi-nav-7">Dashboard &amp; ROI<span class="nav-check" id="pi-chk-7">○</span></div>
     </div>
-
-    <!-- Chat -->
-    <div class="chat-area">
-      <div class="chat-messages" id="owner-messages"></div>
-      <div class="chat-input-area">
+    <div class="sidebar-footer">©2026 Powered by PRIMUS. All Rights Reserved.</div>
+  </div>
+  <div class="content-area">
+    <div class="view active" id="pi-chat-view">
+      <div class="chat-messages" id="pi-messages"></div>
+      <div class="chat-input-wrap">
         <div class="input-row">
-          <div class="input-wrap">
-            <textarea id="ownerInput" placeholder="Type your answer here..." rows="1"
-              onkeydown="handleKey(event,'owner')" oninput="autoResize(this)"></textarea>
+          <div class="textarea-wrap">
+            <textarea id="piInput" placeholder="Type your answer here..." rows="1" onkeydown="handleKey(event,'pi')" oninput="autoResize(this)"></textarea>
           </div>
-          <button class="send-btn" id="owner-send" onclick="sendOwner()">
+          <button class="send-btn" id="pi-send" onclick="sendPI()">
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
           </button>
         </div>
         <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
       </div>
     </div>
-
+    <div class="view" id="pi-dash-view">
+      <div class="dashboard-view" id="pi-dashboard"></div>
+    </div>
   </div>
 </div>
+</div>
 
-<!-- ══════════════════════════════════════════
-     PI SME BOT
-══════════════════════════════════════════ -->
-<div id="panel-sme" class="tab-panel">
-  <div class="app-body">
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <h2>PI SME Expert Bot</h2>
-        <p>AI-powered · Leanbotics™ · GRC Banking</p>
-      </div>
-      <div class="progress-track">
-        <div class="stage-step active" id="sstep-0">
-          <div class="step-num">1</div>
-          <div class="step-info"><h4>Process Mapping</h4><p>Steps, handoffs &amp; systems</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="sstep-1">
-          <div class="step-num">2</div>
-          <div class="step-info"><h4>Lean Waste Analysis</h4><p>8 wastes identification</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="sstep-2">
-          <div class="step-num">3</div>
-          <div class="step-info"><h4>Leanbotics™ ROI</h4><p>Metrics &amp; calculator</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="sstep-3">
-          <div class="step-num">4</div>
-          <div class="step-info"><h4>GRC &amp; Compliance</h4><p>SOX · AML · OCC · Basel III</p></div>
-        </div>
-        <div class="connector"></div>
-        <div class="stage-step" id="sstep-4">
-          <div class="step-num">5</div>
-          <div class="step-info"><h4>Framework &amp; Action Plan</h4><p>Lean / DMAIC / Agile / BPM</p></div>
-        </div>
-      </div>
-      <div class="sidebar-footer">
-        <button class="reset-btn" onclick="resetSME()">↺ Start over</button>
-      </div>
+<!-- AUTOMATION WORKFLOW -->
+<div id="wf-auto" class="tab-panel">
+<div class="app-body">
+  <div class="sidebar">
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Automation Assessment</div>
+      <div class="nav-item active" id="auto-nav-0">Process Context<span class="nav-check">○</span></div>
+      <div class="nav-item" id="auto-nav-1">Structural Readiness<span class="nav-check">○</span></div>
+      <div class="nav-item" id="auto-nav-2">Financial Gate<span class="nav-check">○</span></div>
+      <div class="nav-item" id="auto-nav-3">Technical Feasibility<span class="nav-check">○</span></div>
+      <div class="nav-item" id="auto-nav-4">Decision &amp; Recommendation<span class="nav-check">○</span></div>
     </div>
-
-    <!-- Chat -->
-    <div class="chat-area">
-      <div class="chat-messages" id="sme-messages"></div>
-      <div class="chat-input-area">
+    <div class="sidebar-footer">©2026 Powered by PRIMUS. All Rights Reserved.</div>
+  </div>
+  <div class="content-area">
+    <div class="view active">
+      <div class="chat-messages" id="auto-messages"></div>
+      <div class="chat-input-wrap">
         <div class="input-row">
-          <div class="input-wrap">
-            <textarea id="smeInput" placeholder="Describe the process or ask a question..." rows="1"
-              onkeydown="handleKey(event,'sme')" oninput="autoResize(this)"></textarea>
+          <div class="textarea-wrap">
+            <textarea id="autoInput" placeholder="Describe the process or answer the question..." rows="1" onkeydown="handleKey(event,'auto')" oninput="autoResize(this)"></textarea>
           </div>
-          <button class="send-btn" id="sme-send" onclick="sendSME()">
+          <button class="send-btn" id="auto-send" onclick="sendAuto()">
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
           </button>
         </div>
         <div class="input-hint">Press Enter to send · Shift+Enter for new line · Powered by Claude AI</div>
       </div>
     </div>
-
   </div>
+</div>
 </div>
 
 <script>
-// ════════════════════════════════════════════
-// UTILITIES
-// ════════════════════════════════════════════
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-function handleKey(e, bot) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    bot === 'owner' ? sendOwner() : sendSME();
-  }
-}
-function switchTab(which, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('panel-' + which).classList.add('active');
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function handleKey(e,bot){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();bot==='pi'?sendPI():sendAuto();}}
+function scrollBot(id){const el=document.getElementById(id);if(el)el.scrollTop=el.scrollHeight;}
+function switchWorkflow(which,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.wf-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('wf-'+which).classList.add('active');
   btn.classList.add('active');
 }
-function scrollBottom(id) {
-  const el = document.getElementById(id);
-  el.scrollTop = el.scrollHeight;
-}
-function setStep(prefix, idx) {
-  document.querySelectorAll(`[id^="${prefix}step-"]`).forEach((s, i) => {
-    s.classList.remove('active', 'completed');
-    if (i < idx) s.classList.add('completed');
-    if (i === idx) s.classList.add('active');
-  });
-}
-
-// Detect GRC keywords
-function detectGRC(text) {
-  const flags = [];
-  const t = text.toLowerCase();
-  if (/loan|mortgage|lending|origination/.test(t)) flags.push('OCC / FFIEC');
-  if (/aml|kyc|bsa|suspicious|ofac|sanctions/.test(t)) flags.push('AML / KYC');
-  if (/audit|sox|financial report|reconcil/.test(t)) flags.push('SOX Controls');
-  if (/risk|capital|basel|operational/.test(t)) flags.push('Basel III');
-  if (/compliance|regulatory|exam|cra/.test(t)) flags.push('Regulatory');
+function detectGRC(text){
+  const flags=[];const t=text.toLowerCase();
+  if(/loan|mortgage|lending|origination|heloc/.test(t))flags.push('OCC/FFIEC');
+  if(/aml|kyc|bsa|suspicious|ofac/.test(t))flags.push('AML/KYC');
+  if(/audit|sox|reconcil|financial report/.test(t))flags.push('SOX');
+  if(/risk|basel|operational/.test(t))flags.push('Basel III');
   return flags;
 }
+function fmt$(n){return'$'+Math.round(n).toLocaleString();}
 
-// ════════════════════════════════════════════
-// OWNER BOT — GUIDED Q&A
-// ════════════════════════════════════════════
-const ownerData = {};
-let ownerStep = 0;
-let ownerGRC = [];
+function appendMsg(cid,role,html,avClass){
+  const el=document.getElementById(cid);
+  const w=document.createElement('div');w.className='msg '+role;
+  const av=document.createElement('div');av.className='msg-avatar '+avClass;
+  av.innerHTML=role==='user'?'YOU':'🤖';
+  const b=document.createElement('div');b.className='msg-bubble';b.innerHTML=html;
+  w.appendChild(av);w.appendChild(b);el.appendChild(w);scrollBot(cid);return b;
+}
+function addChips(cid,chips,onSelect){
+  const el=document.getElementById(cid);
+  const w=document.createElement('div');w.className='chips';
+  chips.forEach(c=>{
+    const btn=document.createElement('button');btn.className='chip';btn.textContent=c;
+    btn.onclick=()=>{w.remove();onSelect(c);};w.appendChild(btn);
+  });
+  el.lastElementChild?.querySelector('.msg-bubble')?.appendChild(w);scrollBot(cid);
+}
 
-const ownerFlow = [
-  {
-    ask: `👋 Welcome to <strong>Primo Intake</strong> — I'm here to help you capture your process improvement request in a clear, structured way.<br><br>Let's start simple: <strong>What is the name of the process you'd like to improve?</strong>`,
-    key: 'processName',
-    chips: ['Loan origination review', 'New hire onboarding', 'Monthly reconciliation', 'Account opening']
-  },
-  {
-    ask: (d) => `Great — <strong>${d.processName}</strong>. Which <strong>department or business unit</strong> owns this process?`,
-    key: 'department',
-    chips: ['Operations', 'Compliance', 'Lending', 'Finance', 'HR', 'Risk Management']
-  },
-  {
-    ask: `In one or two sentences, <strong>what does this process accomplish?</strong> What's its main purpose?`,
-    key: 'purpose'
-  },
-  {
-    ask: `Who are the <strong>main people involved</strong> — internally and with customers or vendors?`,
-    key: 'stakeholders',
-    chips: ['Internal team only', 'Internal + customers', 'Internal + vendors', 'All three']
-  },
-  {
-    ask: `What <strong>systems or tools</strong> are used in this process today? (e.g., Encompass, Salesforce, Excel, paper forms)`,
-    key: 'systems',
-    chips: ['Excel / manual', 'Core banking system', 'Salesforce / CRM', 'Mix of systems']
-  },
-  {
-    ask: `Now the important part — <strong>what's the main problem or frustration</strong> with this process right now?`,
-    key: 'painPoint',
-    step: 1
-  },
-  {
-    ask: `<strong>Who is most affected</strong> by this problem?`,
-    key: 'affected',
-    chips: ['My team', 'Our customers', 'Leadership / reporting', 'All of the above']
-  },
-  {
-    ask: `<strong>How often</strong> does this process run?`,
-    key: 'frequency',
-    chips: ['Daily', 'Weekly', 'Monthly', 'Per transaction / on demand'],
-    step: 2
-  },
-  {
-    ask: `Roughly <strong>how many transactions or people</strong> does it handle in a typical month?`,
-    key: 'volume',
-    chips: ['Under 100', '100–500', '500–2,000', '2,000+']
-  },
-  {
-    ask: `If this process was improved, <strong>what would be the biggest win</strong> for your team or customers?`,
-    key: 'biggestWin',
-    step: 3
-  },
-  {
-    ask: `On a scale of <strong>1–5, how urgent</strong> is it to fix this? (1 = low priority, 5 = business critical)`,
-    key: 'urgency',
-    chips: ['1 — Low priority', '2 — Moderate', '3 — Important', '4 — High priority', '5 — Business critical']
-  },
-  {
-    ask: `Do you have <strong>leadership support</strong> to make changes to this process?`,
-    key: 'leadershipSupport',
-    chips: ['Yes — full support', 'Partial — some buy-in', 'Not yet — need to build case', 'Unknown']
-  },
-  {
-    ask: `Last question — is your goal to <strong>improve the process as-is</strong>, or are you also open to <strong>automating parts of it</strong>?`,
-    key: 'automationInterest',
-    chips: ['Improve process only', 'Open to automation', 'Automation is the goal', 'Not sure yet'],
-    step: 4
-  }
+// ─── PI BOT ───
+const piData={};let piStep=0;let piGRC=[];
+
+function setPiNav(idx){
+  document.querySelectorAll('[id^="pi-nav-"]').forEach((n,i)=>{
+    n.classList.remove('active','completed');
+    if(i<idx){n.classList.add('completed');const c=document.getElementById('pi-chk-'+i);if(c)c.textContent='✓';}
+    if(i===idx)n.classList.add('active');
+  });
+}
+
+const piFlow=[
+  {s:0,ask:`👋 Welcome to <strong>Primo PI Assistant™</strong>.<br><br>I'll guide you through a complete process improvement assessment — current state, target state, ROI, and automation readiness.<br><br><strong>What is the name of the process you want to improve?</strong>`,key:'processName',chips:['Loan Document Review','New Account Opening','Monthly Reconciliation','Mortgage Origination','AML/KYC Screening','Wire Transfer Processing']},
+  {s:0,ask:(d)=>`Which <strong>department</strong> owns <em>${d.processName}</em>?`,key:'department',chips:['Operations','Compliance','Lending','Finance','Risk Management','HR','Technology']},
+  {s:0,ask:`Briefly describe the <strong>purpose</strong> of this process — what does it accomplish?`,key:'purpose'},
+  {s:0,ask:`Who are the <strong>main stakeholders</strong> involved?`,key:'stakeholders',chips:['Internal team only','Internal + customers','Internal + vendors','All three']},
+  {s:0,ask:`What <strong>systems or tools</strong> are used today?`,key:'systems',chips:['Core banking system','Encompass / LOS','Salesforce','Excel / manual','Mix of systems','Paper-based']},
+  {s:1,ask:`<strong>Annual transaction volume</strong> — how many transactions per year?`,key:'annualVolume',chips:['Under 500','500–2,000','2,000–10,000','10,000–50,000','50,000+']},
+  {s:1,ask:`<strong>Average cycle time</strong> per transaction today? (end-to-end including all wait time)`,key:'cycleTime',chips:['Under 15 min','15–30 min','30–60 min','1–4 hours','1–3 days']},
+  {s:1,ask:`How much of that is <strong>value-add time</strong>? (actual productive work the customer benefits from)`,key:'valueAddTime',chips:['Under 10 min','10–20 min','20–30 min','Over 30 min']},
+  {s:1,ask:`How much is <strong>wait/idle time</strong>? (queues, approvals, handoff delays)`,key:'waitTime',chips:['Under 5 min','5–15 min','15–30 min','Over 30 min']},
+  {s:1,ask:`How much is <strong>rework time</strong>? (time spent fixing errors per transaction)`,key:'reworkTime',chips:['0–5 min','5–10 min','10–20 min','Over 20 min']},
+  {s:2,ask:`<strong>FTE allocation</strong> — how many full-time equivalents are dedicated to this process?`,key:'fte',chips:['0.5 FTE','1 FTE','1.5–2 FTE','2–3 FTE','3–5 FTE','5+ FTE']},
+  {s:2,ask:`<strong>Average fully-loaded hourly rate</strong> for staff? (salary + benefits + overhead)`,key:'hourlyRate',chips:['$25/hr','$35/hr','$50/hr','$65/hr','$75+/hr']},
+  {s:3,ask:`<strong>Error/defect rate</strong> — what % of transactions contain errors requiring rework?`,key:'errorRate',chips:['Under 2%','2–5%','5–10%','10–20%','Over 20%']},
+  {s:3,ask:`How many <strong>distinct defect types</strong> (error categories) exist?`,key:'defectTypes',chips:['1','2–3','4–6','7+']},
+  {s:3,ask:`<strong>Customer complaints</strong> received about this process in the last 12 months?`,key:'complaints',chips:['0','1–10','10–25','25–50','50+']},
+  {s:3,ask:`Current <strong>SLA compliance rate</strong>? (% completed within agreed timeframes)`,key:'slaCompliance',chips:['Under 70%','70–80%','80–90%','90–95%','95%+']},
+  {s:4,ask:`How many <strong>process steps</strong> from start to finish?`,key:'processSteps',chips:['Under 10','10–15','15–25','25+']},
+  {s:4,ask:`How many <strong>handoffs</strong> between people, teams, or systems?`,key:'handoffs',chips:['1–3','4–6','7–10','10+']},
+  {s:4,ask:`How many <strong>decision points</strong> require human judgment?`,key:'decisionPoints',chips:['1–3','4–6','7–10','10+']},
+  {s:4,ask:`What % of transactions are <strong>exceptions</strong> needing special handling?`,key:'exceptionRate',chips:['Under 5%','5–10%','10–20%','Over 20%']},
+  {s:4,ask:`Current <strong>standardization level</strong>? (% of documented, consistently followed procedures)`,key:'standardization',chips:['Under 25% — ad hoc','25–50% — some docs','50–75% — partial','75%+ — well documented']},
+  {s:5,ask:`🎯 Now let's define <strong>Target State</strong>.<br><br>What is your <strong>target cycle time</strong> after improvement?`,key:'targetCycleTime',chips:['Cut by 25%','Cut by 50%','Cut by 75%','Under 15 min','Under 30 min']},
+  {s:5,ask:`<strong>Target FTE</strong> after improvement?`,key:'targetFTE',chips:['Same as current','Reduce by 0.5 FTE','Reduce by 1 FTE','Reduce by 2+ FTE']},
+  {s:5,ask:`<strong>Target error rate</strong>?`,key:'targetErrorRate',chips:['Under 1%','Under 2%','Under 3%','Under 5%']},
+  {s:5,ask:`<strong>Target SLA compliance rate</strong>?`,key:'targetSLA',chips:['90%','95%','98%','99%+']},
+  {s:5,ask:`<strong>Target standardization level</strong>?`,key:'targetStandardization',chips:['75%','80%','90%','95%+']},
+  {s:6,ask:`💰 <strong>Investment Plan</strong>.<br><br>Estimated cost for <strong>Process Mapping &amp; Documentation</strong>?`,key:'inv_mapping',chips:['$1,000–2,000','$2,000–4,000','$4,000–6,000','$6,000+']},
+  {s:6,ask:`Estimated cost for <strong>Value Stream Analysis</strong>?`,key:'inv_vsa',chips:['$1,500–3,000','$3,000–5,000','$5,000–8,000']},
+  {s:6,ask:`Estimated cost for <strong>SOP Development &amp; Training</strong>?`,key:'inv_training',chips:['$3,000–6,000','$6,000–12,000','$12,000–20,000','$20,000+']},
+  {s:6,ask:`Estimated cost for <strong>Change Management</strong>?`,key:'inv_change',chips:['$1,000–3,000','$3,000–6,000','$6,000–10,000']},
 ];
 
-function appendMsg(containerId, role, html, avatarClass) {
-  const el = document.getElementById(containerId);
-  const wrap = document.createElement('div');
-  wrap.className = `msg ${role}`;
-  const avatar = document.createElement('div');
-  avatar.className = `msg-avatar ${avatarClass}`;
-  avatar.textContent = role === 'user' ? 'YOU' : 'P';
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  bubble.innerHTML = html;
-  wrap.appendChild(avatar);
-  wrap.appendChild(bubble);
-  el.appendChild(wrap);
-  scrollBottom(containerId);
-  return bubble;
+function extractNum(v){
+  const pct=v.match(/(\d+)%/);if(pct)return parseFloat(pct[1]);
+  const range=v.match(/([\d.]+)[–\-]([\d.]+)/);if(range)return(parseFloat(range[1])+parseFloat(range[2]))/2;
+  const dollar=v.match(/\$([\d,]+)/);if(dollar)return parseFloat(dollar[1].replace(/,/g,''));
+  const plain=v.match(/([\d.]+)/);if(plain)return parseFloat(plain[1]);
+  if(/same/i.test(v))return null;
+  return null;
+}
+function parseFTE(v,currentFTE){
+  if(/same/i.test(v))return parseFloat(currentFTE)||2;
+  if(/0\.5/i.test(v))return (parseFloat(currentFTE)||2)-0.5;
+  if(/\b1\b/.test(v)&&/reduce/i.test(v))return (parseFloat(currentFTE)||2)-1;
+  if(/2\+?/.test(v)&&/reduce/i.test(v))return (parseFloat(currentFTE)||2)-2;
+  const n=extractNum(v);return n!==null?n:(parseFloat(currentFTE)||2);
+}
+function parseCycleTarget(v,current){
+  if(/25%/i.test(v))return current*0.75;
+  if(/50%/i.test(v))return current*0.5;
+  if(/75%/i.test(v))return current*0.25;
+  const n=extractNum(v);return n!==null?n:current*0.5;
 }
 
-function addChips(containerId, chips, onSelect) {
-  const el = document.getElementById(containerId);
-  const wrap = document.createElement('div');
-  wrap.className = 'quick-replies';
-  chips.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'chip';
-    btn.textContent = c;
-    btn.onclick = () => { wrap.remove(); onSelect(c); };
-    wrap.appendChild(btn);
-  });
-  el.lastElementChild?.querySelector('.msg-bubble')?.appendChild(wrap);
-  scrollBottom(containerId);
-}
-
-function askOwnerQuestion(idx) {
-  if (idx >= ownerFlow.length) { generateOwnerReport(); return; }
-  const q = ownerFlow[idx];
-  if (q.step !== undefined) setStep('o', q.step);
-  const text = typeof q.ask === 'function' ? q.ask(ownerData) : q.ask;
-  appendMsg('owner-messages', 'bot', text, 'avatar-bot-owner');
-  if (q.chips) addChips('owner-messages', q.chips, val => processOwnerAnswer(val));
-  scrollBottom('owner-messages');
-}
-
-function processOwnerAnswer(val) {
-  const q = ownerFlow[ownerStep];
-  ownerData[q.key] = val;
-  appendMsg('owner-messages', 'user', val, 'avatar-user');
-
-  // GRC detection on pain point and process name
-  if (q.key === 'painPoint' || q.key === 'processName') {
-    const flags = detectGRC(val + ' ' + (ownerData.processName || ''));
-    if (flags.length) {
-      ownerGRC = [...new Set([...ownerGRC, ...flags])];
+function processPiAnswer(val){
+  const q=piFlow[piStep];
+  let parsed=val;
+  if(q.key==='targetFTE')parsed=parseFTE(val,piData.fte);
+  else if(q.key==='targetCycleTime')parsed=parseCycleTarget(val,parseFloat(piData.cycleTime)||45);
+  else{const n=extractNum(val);if(n!==null)parsed=n;}
+  piData[q.key]=parsed;
+  appendMsg('pi-messages','user',val,'av-user');
+  if(['processName','purpose','systems'].includes(q.key)){
+    const flags=detectGRC(val+' '+(piData.processName||''));
+    if(flags.length){
+      piGRC=[...new Set([...piGRC,...flags])];
+      if(piStep===0){
+        setTimeout(()=>{
+          const last=document.getElementById('pi-messages').lastElementChild;
+          if(last){const b=last.querySelector('.msg-bubble');if(b)b.innerHTML+=`<div class="grc-flag">🔒 <strong>Compliance flagged:</strong> ${piGRC.join(' · ')} — I'll factor these into your assessment.</div>`;}
+        },300);
+      }
     }
   }
-
-  ownerStep++;
-  setTimeout(() => askOwnerQuestion(ownerStep), 500);
+  piStep++;
+  setTimeout(()=>askPiQuestion(piStep),420);
 }
 
-function sendOwner() {
-  const inp = document.getElementById('ownerInput');
-  const val = inp.value.trim();
-  if (!val) return;
-  inp.value = ''; inp.style.height = 'auto';
-  processOwnerAnswer(val);
+function askPiQuestion(idx){
+  if(idx>=piFlow.length){showDashboard();return;}
+  const q=piFlow[idx];
+  if(q.s!==undefined)setPiNav(q.s);
+  const text=typeof q.ask==='function'?q.ask(piData):q.ask;
+  appendMsg('pi-messages','bot',text,'av-primo');
+  if(q.chips)addChips('pi-messages',q.chips,v=>processPiAnswer(v));
+}
+function sendPI(){
+  const inp=document.getElementById('piInput');const val=inp.value.trim();if(!val)return;
+  inp.value='';inp.style.height='auto';processPiAnswer(val);
 }
 
-function generateOwnerReport() {
-  setStep('o', 4);
-  // Score urgency
-  const urgencyNum = parseInt(ownerData.urgency) || 3;
-  const priority = urgencyNum >= 4 ? 'HIGH' : urgencyNum === 3 ? 'MEDIUM' : 'LOW';
-  const priorityColor = urgencyNum >= 4 ? '#D85A30' : urgencyNum === 3 ? '#BA7517' : '#1D9E75';
-
-  // Pathway
-  const autoInterest = ownerData.automationInterest || '';
-  const pathway = autoInterest.toLowerCase().includes('automat') ? 'PI + Automation Track' : 'Process Improvement Track';
-
-  let grcHtml = '';
-  if (ownerGRC.length) {
-    grcHtml = `<div class="grc-tags" style="margin-top:8px;">${ownerGRC.map(g => `<span class="grc-tag">🔒 ${g}</span>`).join('')}</div>`;
-  }
-
-  const reportHtml = `
-    <div class="report-card">
-      <div class="report-header">
-        <span>Primo Intake Report</span>
-        <span style="font-size:11px; color:rgba(255,255,255,0.5);">${new Date().toLocaleDateString()}</span>
-      </div>
-      <div class="report-body">
-        <div class="report-row"><span class="report-key">Process</span><span class="report-val">${ownerData.processName || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Department</span><span class="report-val">${ownerData.department || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Purpose</span><span class="report-val">${ownerData.purpose || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Stakeholders</span><span class="report-val">${ownerData.stakeholders || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Systems</span><span class="report-val">${ownerData.systems || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Pain Point</span><span class="report-val">${ownerData.painPoint || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Affected Parties</span><span class="report-val">${ownerData.affected || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Frequency</span><span class="report-val">${ownerData.frequency || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Monthly Volume</span><span class="report-val">${ownerData.volume || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Expected Win</span><span class="report-val">${ownerData.biggestWin || '—'}</span></div>
-        <div class="report-row"><span class="report-key">Leadership Support</span><span class="report-val">${ownerData.leadershipSupport || '—'}</span></div>
-        <div class="report-row"><span class="report-key">PI Priority</span><span class="report-val" style="color:${priorityColor}; font-weight:600;">${priority}</span></div>
-        <div class="report-row"><span class="report-key">Recommended Path</span><span class="report-val">${pathway}</span></div>
-      </div>
-      ${grcHtml ? `<div style="padding:0 14px 4px;">${grcHtml}</div>` : ''}
-      <button class="download-btn" onclick="downloadReport()">↓ Download Report</button>
-    </div>`;
-
-  appendMsg('owner-messages', 'bot',
-    `Your <strong>Primo Intake Report</strong> is ready. ${ownerGRC.length ? `I also flagged <strong>${ownerGRC.join(', ')}</strong> compliance considerations based on your answers.` : ''} This is ready to hand off to your PI SME.${reportHtml}`,
-    'avatar-bot-owner');
-
-  setTimeout(() => {
-    appendMsg('owner-messages', 'bot',
-      `<strong>What would you like to do next?</strong><div class="quick-replies"><button class="chip" onclick="switchTab('sme', document.querySelectorAll('.tab-btn')[1])">→ Move to PI SME Bot</button><button class="chip" onclick="resetOwner()">Start a new process</button></div>`,
-      'avatar-bot-owner');
-  }, 800);
+// ─── DASHBOARD ───
+function showDashboard(){
+  setPiNav(7);
+  const c=document.getElementById('pi-chk-7');if(c)c.textContent='✓';
+  document.getElementById('pi-chat-view').classList.remove('active');
+  document.getElementById('pi-dash-view').classList.add('active');
+  buildDashboard();
 }
 
-function downloadReport() {
-  const lines = Object.entries(ownerData).map(([k,v]) => `${k}: ${v}`).join('\n');
-  const blob = new Blob([`PRIMO INTAKE REPORT\nPrimus Pipeline™\n${new Date().toLocaleDateString()}\n\n${lines}\n\nGRC Flags: ${ownerGRC.join(', ') || 'None'}`], {type:'text/plain'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `Primo-Intake-${ownerData.processName || 'Report'}.txt`; a.click();
+function buildDashboard(){
+  const d=piData;
+  const cycleTime=parseFloat(d.cycleTime)||45;
+  const targetCT=parseFloat(d.targetCycleTime)||Math.round(cycleTime*0.5);
+  const fte=parseFloat(d.fte)||2.5;
+  const targetFTE=parseFloat(d.targetFTE)||Math.max(1,fte-0.5);
+  const hourlyRate=parseFloat(d.hourlyRate)||35;
+  const annualVol=parseFloat(d.annualVolume)||500;
+  const errorRate=parseFloat(d.errorRate)||8;
+  const targetError=parseFloat(d.targetErrorRate)||2;
+  const sla=parseFloat(d.slaCompliance)||78;
+  const targetSLA=parseFloat(d.targetSLA)||95;
+  const reworkTime=parseFloat(d.reworkTime)||7;
+  const valueAddTime=parseFloat(d.valueAddTime)||18;
+  const waitTime=parseFloat(d.waitTime)||20;
+  const steps=parseFloat(d.processSteps)||15;
+  const handoffs=parseFloat(d.handoffs)||8;
+  const exRate=parseFloat(d.exceptionRate)||15;
+  const std=parseFloat(d.standardization)||40;
+  const targetStd=parseFloat(d.targetStandardization)||85;
+  const defTypes=parseFloat(d.defectTypes)||3;
+  const complaints=parseFloat(d.complaints)||24;
+  const decPts=parseFloat(d.decisionPoints)||6;
+
+  const currentHours=annualVol*(valueAddTime+reworkTime)/60;
+  const currentCost=currentHours*hourlyRate;
+  const targetHours=annualVol*(valueAddTime*0.88+(reworkTime*(targetError/errorRate)))/60;
+  const targetCost=targetHours*hourlyRate;
+  const annualSavings=Math.max(0,currentCost-targetCost);
+  const totalInv=(parseFloat(d.inv_mapping)||2000)+(parseFloat(d.inv_vsa)||2500)+(parseFloat(d.inv_training)||8000)+(parseFloat(d.inv_change)||3000);
+  const roi3yr=totalInv>0?(annualSavings*3-totalInv)/totalInv*100:0;
+  const payback=annualSavings>0?totalInv/(annualSavings/12):99;
+  const fteSaved=fte-targetFTE;
+  const ctReduction=Math.round((cycleTime-targetCT)/cycleTime*100);
+  const scoreStd=Math.min(20,targetStd/80*20);
+  const scoreVol=Math.min(20,annualVol/5000*20);
+  const scoreQual=targetError<=3?20:Math.max(0,20-(targetError-3)*4);
+  const scoreSimp=steps<=10?20:Math.max(0,20-(steps-10)*2);
+  const scoreCons=exRate<=10?20:Math.max(0,20-(exRate-10)*2);
+  const totalReadiness=Math.round(scoreStd+scoreVol+scoreQual+scoreSimp+scoreCons);
+  const financialGate=annualSavings>=25000&&payback<=12&&roi3yr>=50;
+  const structuralGate=totalReadiness>=80;
+  let gClass,gIcon,gTitle,gMsg;
+  if(structuralGate&&financialGate){gClass='proceed';gIcon='✅';gTitle='STRONG AUTOMATION CANDIDATE';gMsg='Both gates pass. Ready for PrimeOne automation assessment.';}
+  else if(totalReadiness>=60){gClass='improve';gIcon='⚠️';gTitle='POTENTIAL — REVIEW FACTORS';gMsg='Partial readiness. Continue improving and reassess in 90 days.';}
+  else{gClass='not-ready';gIcon='🔄';gTitle='IMPROVE PROCESS FIRST';gMsg='Address standardization, quality, or complexity before automation.';}
+
+  const bp=(v,max)=>Math.min(100,Math.round(v/max*100));
+
+  document.getElementById('pi-dashboard').innerHTML=`
+<div class="dash-title">Process Improvement Dashboard</div>
+<div class="dash-subtitle">${d.processName||'Process'} · ${d.department||''} · ${new Date().toLocaleDateString()}</div>
+<div class="dash-nav">
+  <button class="dash-nav-btn active" onclick="dSection('metrics',this)">Current State</button>
+  <button class="dash-nav-btn" onclick="dSection('compare',this)">Current vs Target</button>
+  <button class="dash-nav-btn" onclick="dSection('roi',this)">ROI &amp; Investment</button>
+  <button class="dash-nav-btn" onclick="dSection('readiness',this)">Automation Readiness</button>
+</div>
+
+<div id="d-metrics">
+<div class="section-header"><span class="section-title">Current State — As-Is Metrics</span><span class="section-badge badge-amber">Baseline</span></div>
+<div class="metric-grid">
+  <div class="metric-card warn"><div class="m-label">Cycle Time</div><div class="m-current">${cycleTime}<span style="font-size:13px;font-weight:400"> min</span></div><div class="m-target">Target: ${Math.round(targetCT)} min (↓${ctReduction}%)</div></div>
+  <div class="metric-card warn"><div class="m-label">Value-Add Time</div><div class="m-current">${valueAddTime}<span style="font-size:13px"> min</span></div><div class="m-unit">${Math.round(valueAddTime/cycleTime*100)}% of cycle</div></div>
+  <div class="metric-card warn"><div class="m-label">Wait Time (Waste)</div><div class="m-current">${waitTime}<span style="font-size:13px"> min</span></div><div class="m-unit">${Math.round(waitTime/cycleTime*100)}% of cycle</div></div>
+  <div class="metric-card warn"><div class="m-label">Rework Time</div><div class="m-current">${reworkTime}<span style="font-size:13px"> min</span></div><div class="m-unit">${Math.round(reworkTime/cycleTime*100)}% of cycle</div></div>
+  <div class="metric-card warn"><div class="m-label">Error / Defect Rate</div><div class="m-current">${errorRate}<span style="font-size:13px">%</span></div><div class="m-target">Target: ${targetError}%</div></div>
+  <div class="metric-card warn"><div class="m-label">SLA Compliance</div><div class="m-current">${sla}<span style="font-size:13px">%</span></div><div class="m-target">Target: ${targetSLA}%</div></div>
+  <div class="metric-card"><div class="m-label">FTE Allocation</div><div class="m-current">${fte}<span style="font-size:13px"> FTE</span></div><div class="m-target">Target: ${targetFTE} FTE</div></div>
+  <div class="metric-card"><div class="m-label">Annual Volume</div><div class="m-current">${Math.round(annualVol).toLocaleString()}</div><div class="m-unit">transactions/year</div></div>
+  <div class="metric-card warn"><div class="m-label">Process Steps</div><div class="m-current">${steps}</div><div class="m-unit">${handoffs} handoffs · ${decPts} decisions</div></div>
+  <div class="metric-card warn"><div class="m-label">Exception Rate</div><div class="m-current">${exRate}<span style="font-size:13px">%</span></div><div class="m-unit">need special handling</div></div>
+  <div class="metric-card warn"><div class="m-label">Standardization</div><div class="m-current">${std}<span style="font-size:13px">%</span></div><div class="m-target">Target: ${targetStd}%</div></div>
+  <div class="metric-card warn"><div class="m-label">Defect Types</div><div class="m-current">${defTypes}</div><div class="m-unit">distinct error categories</div></div>
+  <div class="metric-card warn"><div class="m-label">Customer Complaints</div><div class="m-current">${complaints}</div><div class="m-unit">in last 12 months</div></div>
+  <div class="metric-card"><div class="m-label">Annual Labor Cost</div><div class="m-current" style="font-size:16px">${fmt$(currentCost)}</div><div class="m-unit">at ${fmt$(hourlyRate)}/hr fully loaded</div></div>
+</div>
+${piGRC.length?`<div class="grc-flag">🔒 <strong>GRC Flags:</strong> ${piGRC.join(' · ')} — controls must be preserved in the improved process.</div>`:''}
+</div>
+
+<div id="d-compare" style="display:none">
+<div class="section-header"><span class="section-title">Current State vs Target State</span><span class="section-badge badge-green">Improvement Delta</span></div>
+<div class="compare-section"><div class="compare-title">Time Metrics (minutes per transaction)</div>
+  ${[['Cycle Time',cycleTime,Math.round(targetCT),Math.max(cycleTime,targetCT)*1.05,'min',-ctReduction+'%'],
+     ['Value-Add Time',valueAddTime,Math.round(valueAddTime*0.88),Math.max(valueAddTime,40),'min',''],
+     ['Wait Time (Waste)',waitTime,Math.round(waitTime*0.2),Math.max(waitTime,40),'min','-'+Math.round((waitTime-waitTime*0.2)/waitTime*100)+'%'],
+     ['Rework Time',reworkTime,Math.round(reworkTime*(targetError/errorRate)),Math.max(reworkTime,30),'min','']
+  ].map(([name,cur,tgt,max,unit,badge])=>`
+  <div class="compare-row">
+    <div class="compare-label"><span>${name}</span><span style="color:var(--green);font-weight:600">${badge}</span></div>
+    <div class="compare-bars">
+      <div class="bar-wrap"><span class="bar-label" style="color:#E07020">Current</span><div class="bar-track"><div class="bar-fill bar-current" style="width:${bp(cur,max)}%"></div></div><span class="bar-val" style="color:#E07020">${cur}${unit}</span></div>
+      <div class="bar-wrap"><span class="bar-label" style="color:var(--green)">Target</span><div class="bar-track"><div class="bar-fill bar-target" style="width:${bp(tgt,max)}%"></div></div><span class="bar-val" style="color:var(--green)">${tgt}${unit}</span></div>
+    </div>
+  </div>`).join('')}
+</div>
+<div class="compare-section"><div class="compare-title">Quality &amp; Compliance</div>
+  ${[['Error/Defect Rate',errorRate,targetError,30,'%','-'+Math.round((errorRate-targetError)/errorRate*100)+'%'],
+     ['SLA Compliance',sla,targetSLA,100,'%','+'+Math.round(targetSLA-sla)+'pts'],
+     ['Standardization',std,targetStd,100,'%','+'+Math.round(targetStd-std)+'pts'],
+     ['Exception Rate',exRate,Math.round(exRate*0.35),30,'%','']
+  ].map(([name,cur,tgt,max,unit,badge])=>`
+  <div class="compare-row">
+    <div class="compare-label"><span>${name}</span><span style="color:var(--green);font-weight:600">${badge}</span></div>
+    <div class="compare-bars">
+      <div class="bar-wrap"><span class="bar-label" style="color:#E07020">Current</span><div class="bar-track"><div class="bar-fill bar-current" style="width:${bp(cur,max)}%"></div></div><span class="bar-val" style="color:#E07020">${cur}${unit}</span></div>
+      <div class="bar-wrap"><span class="bar-label" style="color:var(--green)">Target</span><div class="bar-track"><div class="bar-fill bar-target" style="width:${bp(tgt,max)}%"></div></div><span class="bar-val" style="color:var(--green)">${tgt}${unit}</span></div>
+    </div>
+  </div>`).join('')}
+</div>
+</div>
+
+<div id="d-roi" style="display:none">
+<div class="section-header"><span class="section-title">ROI Calculator — Leanbotics™</span><span class="section-badge badge-green">Financial Analysis</span></div>
+<div class="roi-grid">
+  <div class="roi-card featured"><div class="r-label">Annual Savings</div><div class="r-val">${fmt$(annualSavings)}</div><div class="r-sub">Labor cost reduction</div></div>
+  <div class="roi-card featured"><div class="r-label">3-Year Net Value</div><div class="r-val">${fmt$(annualSavings*3-totalInv)}</div><div class="r-sub">After investment deducted</div></div>
+  <div class="roi-card"><div class="r-label">3-Year ROI</div><div class="r-val">${Math.round(roi3yr)}%</div><div class="r-sub">Return on investment</div></div>
+  <div class="roi-card"><div class="r-label">Payback Period</div><div class="r-val">${payback>=99?'N/A':Math.round(payback)+' mo'}</div><div class="r-sub">Months to break even</div></div>
+  <div class="roi-card"><div class="r-label">FTE Capacity Freed</div><div class="r-val">${Math.max(0,fteSaved).toFixed(1)} FTE</div><div class="r-sub">${fmt$(Math.max(0,fteSaved)*hourlyRate*2000)}/year</div></div>
+  <div class="roi-card"><div class="r-label">Cycle Time Reduction</div><div class="r-val">${ctReduction}%</div><div class="r-sub">${cycleTime}min → ${Math.round(targetCT)}min</div></div>
+  <div class="roi-card"><div class="r-label">Error Rate Reduction</div><div class="r-val">${Math.round((errorRate-targetError)/errorRate*100)}%</div><div class="r-sub">${errorRate}% → ${targetError}%</div></div>
+  <div class="roi-card"><div class="r-label">SLA Improvement</div><div class="r-val">+${Math.round(targetSLA-sla)}pts</div><div class="r-sub">${sla}% → ${targetSLA}%</div></div>
+</div>
+<div class="section-header" style="margin-top:1rem"><span class="section-title">Investment Plan</span></div>
+<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1rem">
+<table class="inv-table"><thead><tr><th>Initiative</th><th class="num">Investment</th></tr></thead><tbody>
+  <tr><td>Process Mapping &amp; Documentation</td><td class="num">${fmt$(parseFloat(d.inv_mapping)||2000)}</td></tr>
+  <tr><td>Value Stream Analysis</td><td class="num">${fmt$(parseFloat(d.inv_vsa)||2500)}</td></tr>
+  <tr><td>SOP Development &amp; Training</td><td class="num">${fmt$(parseFloat(d.inv_training)||8000)}</td></tr>
+  <tr><td>Change Management</td><td class="num">${fmt$(parseFloat(d.inv_change)||3000)}</td></tr>
+  <tr><td><strong>Total Investment</strong></td><td class="num"><strong>${fmt$(totalInv)}</strong></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<div id="d-readiness" style="display:none">
+<div class="section-header"><span class="section-title">Automation Readiness — Structural Scorecard</span><span class="section-badge ${totalReadiness>=80?'badge-green':totalReadiness>=60?'badge-amber':'badge-red'}">${totalReadiness>=80?'READY':totalReadiness>=60?'PARTIAL':'NOT READY'}</span></div>
+<div class="readiness-card">
+  <div class="readiness-header">
+    <div><div class="readiness-title">Structural Readiness Score (Target State)</div><div style="font-size:11px;color:var(--text-muted)">5 factors · 0–100 scale · Threshold: 80</div></div>
+    <div style="text-align:right"><div class="readiness-score">${totalReadiness}/100</div><div style="font-size:11px;color:var(--text-muted)">${totalReadiness>=80?'Ready for Automation':totalReadiness>=60?'Partially Ready':'Improve First'}</div></div>
+  </div>
+  ${[['Standardization',Math.round(scoreStd),'Target: '+targetStd+'%'],
+     ['Volume',Math.round(scoreVol),Math.round(annualVol).toLocaleString()+' transactions/year'],
+     ['Quality (Low Error Rate)',Math.round(scoreQual),'Target error rate: '+targetError+'%'],
+     ['Simplicity (Low Steps)',Math.round(scoreSimp),steps+' steps — target ≤10'],
+     ['Consistency (Low Exceptions)',Math.round(scoreCons),exRate+'% exceptions — target ≤10%']
+  ].map(([name,score,note])=>`
+  <div class="factor-row">
+    <div class="factor-top"><span class="factor-name">${name}</span><span class="factor-score" style="color:${score>=16?'var(--green)':score>=10?'#C9A84C':'#E07020'}">${score}/20</span></div>
+    <div class="factor-bar"><div class="factor-fill ${score>=16?'':score>=10?'mid':'low'}" style="width:${score/20*100}%"></div></div>
+    <div style="font-size:10px;color:var(--text-hint);margin-top:2px">${note}</div>
+  </div>`).join('')}
+</div>
+<div class="decision-gate ${gClass}">
+  <div class="gate-icon">${gIcon}</div>
+  <div class="gate-text">
+    <h4>${gTitle}</h4>
+    <p>${gMsg}</p>
+    <p style="margin-top:4px"><strong>Financial gate:</strong> Savings ${fmt$(annualSavings)} · Payback ${payback>=99?'N/A':Math.round(payback)+' mo'} · 3-yr ROI ${Math.round(roi3yr)}% ${financialGate?'✅':'— thresholds: ≥$25K savings, ≤12 mo payback, ≥50% ROI'}</p>
+  </div>
+</div>
+${totalReadiness>=60?`<div style="text-align:center;margin-top:0.5rem"><button class="new-conv-btn" onclick="document.querySelectorAll('.wf-tab')[1].click();switchWorkflow('auto',document.querySelectorAll('.wf-tab')[1])">→ Proceed to Automation Agent</button></div>`:''}
+</div>`;
 }
 
-function resetOwner() {
-  ownerStep = 0; ownerGRC = [];
-  Object.keys(ownerData).forEach(k => delete ownerData[k]);
-  document.getElementById('owner-messages').innerHTML = '';
-  setStep('o', 0);
-  setTimeout(() => askOwnerQuestion(0), 300);
-}
-
-// ════════════════════════════════════════════
-// PI SME BOT — CLAUDE AI POWERED
-// ════════════════════════════════════════════
-const smeHistory = [];
-let smeThinking = false;
-
-const SME_SYSTEM = `You are the PI SME Expert Bot for Primo PI Assistant™, built by Primus Software Corporation. You are an expert process improvement consultant specializing in banking and financial services.
-
-Your role: Guide PI (Process Improvement) professionals through a structured expert assessment covering:
-1. Process mapping (steps, handoffs, decision points, systems)
-2. Lean waste analysis (8 wastes: waiting, defects, overproduction, over-processing, transport, inventory, motion, non-utilized talent)
-3. Leanbotics™ ROI Calculator inputs (cycle time, FTE count, defect rate, first pass yield, volume, cost per FTE, SLA breach rate) — calculate savings when data is provided
-4. GRC & Banking compliance layer (SOX, Basel III operational risk, OCC/FFIEC, AML/KYC, audit trail mapping)
-5. Framework recommendation (Lean, Six Sigma DMAIC, Agile/Scrum, or BPM redesign) and 90-day action plan
-
-Tone: Technical, peer-level, consultative. You speak to professionals — use proper PI terminology.
-
-Key behaviors:
-- Ask focused, specific questions — one topic at a time
-- When you have enough metric data (cycle time, FTE, defect rate, volume), proactively calculate and display the Leanbotics™ ROI (time savings, FTE savings, cost savings, BCR ratio)
-- Flag GRC/compliance implications automatically when banking process types are mentioned
-- After gathering sufficient information, recommend the most appropriate improvement framework and provide a concrete 90-day action plan
-- Keep responses concise and structured — use bullet points and labels where helpful
-- Reference Primo PI Assistant™ stages naturally in conversation
-- Do NOT include PrimeOne or POPPI scoring — that has been removed from scope
-
-When calculating Leanbotics™ ROI, use:
-- Time savings = (current cycle time - target cycle time) × monthly volume
-- FTE savings = current FTE × estimated efficiency gain %
-- Annual cost savings = FTE savings × avg FTE cost
-- BCR = total annual benefit / implementation cost (if provided)
-- Sigma level = use DPMO table approximation if defect rate given
-
-Format metric outputs clearly with labels and values.`;
-
-async function sendSME() {
-  if (smeThinking) return;
-  const inp = document.getElementById('smeInput');
-  const val = inp.value.trim();
-  if (!val) return;
-  inp.value = ''; inp.style.height = 'auto';
-
-  appendMsg('sme-messages', 'user', val, 'avatar-user');
-  smeHistory.push({ role: 'user', content: val });
-
-  // GRC sidebar highlight
-  const grcFlags = detectGRC(val);
-  if (grcFlags.length) {
-    document.getElementById('sstep-3').classList.add('active');
-  }
-
-  smeThinking = true;
-  document.getElementById('sme-send').disabled = true;
-
-  // Typing indicator
-  const typingWrap = document.createElement('div');
-  typingWrap.className = 'msg bot';
-  typingWrap.innerHTML = `<div class="msg-avatar avatar-bot-sme">P</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
-  document.getElementById('sme-messages').appendChild(typingWrap);
-  scrollBottom('sme-messages');
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: SME_SYSTEM,
-        messages: smeHistory
-      })
-    });
-    const data = await res.json();
-    typingWrap.remove();
-
-    const reply = data.content?.map(b => b.text || '').join('') || 'I encountered an issue. Please try again.';
-    smeHistory.push({ role: 'assistant', content: reply });
-
-    // Format reply — convert markdown-ish to HTML
-    const formatted = reply
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n\n/g, '<br><br>')
-      .replace(/\n- /g, '<br>• ')
-      .replace(/\n(\d+)\. /g, '<br>$1. ');
-
-    appendMsg('sme-messages', 'bot', formatted, 'avatar-bot-sme');
-
-    // Update sidebar progress heuristically
-    const lower = reply.toLowerCase();
-    if (lower.includes('waste') || lower.includes('lean')) setStep('s', 1);
-    if (lower.includes('cycle time') || lower.includes('fte') || lower.includes('roi') || lower.includes('leanbotics')) setStep('s', 2);
-    if (lower.includes('sox') || lower.includes('aml') || lower.includes('occ') || lower.includes('compliance')) setStep('s', 3);
-    if (lower.includes('action plan') || lower.includes('dmaic') || lower.includes('recommend') || lower.includes('90-day')) setStep('s', 4);
-
-  } catch(e) {
-    typingWrap.remove();
-    appendMsg('sme-messages', 'bot', 'There was a connection issue. Please check your network and try again.', 'avatar-bot-sme');
-  }
-
-  smeThinking = false;
-  document.getElementById('sme-send').disabled = false;
-  document.getElementById('smeInput').focus();
-}
-
-function resetSME() {
-  smeHistory.length = 0;
-  smeThinking = false;
-  document.getElementById('sme-send').disabled = false;
-  document.getElementById('sme-messages').innerHTML = '';
-  setStep('s', 0);
-  setTimeout(() => initSME(), 300);
-}
-
-function initSME() {
-  appendMsg('sme-messages', 'bot',
-    `Welcome to the <strong>PI SME Expert Bot</strong> — powered by Claude AI.<br><br>I'm your process improvement analyst for the <strong>Primo PI Assistant™</strong>. I'll guide you through a full assessment covering:<br><br>• Process mapping &amp; waste identification (Lean 8 wastes)<br>• <strong>Leanbotics™ ROI Calculator</strong> — cycle time, FTE savings, defect rate, BCR<br>• <strong>GRC Banking Layer</strong> — SOX, AML/KYC, OCC/FFIEC, Basel III<br>• Framework recommendation (Lean, DMAIC, Agile, BPM) + 90-day action plan<br><br><strong>Let's start: Tell me about the process you're assessing. What is it, and what's the core problem you've been asked to solve?</strong>`,
-    'avatar-bot-sme');
-
-  const chips = ['Start from a Primo Intake report', 'I have a specific process to analyze', 'I need to run the Leanbotics™ ROI calculator', 'I need a GRC compliance review'];
-  addChips('sme-messages', chips, val => {
-    document.getElementById('smeInput').value = val;
-    sendSME();
+function dSection(id,btn){
+  ['metrics','compare','roi','readiness'].forEach(s=>{
+    const el=document.getElementById('d-'+s);if(el)el.style.display=s===id?'block':'none';
   });
+  document.querySelectorAll('.dash-nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
 }
 
-// ════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════
-window.onload = () => {
-  askOwnerQuestion(0);
-  initSME();
-};
+// ─── AUTOMATION BOT ───
+const autoHistory=[];let autoThinking=false;
+const AUTO_SYSTEM=`You are the Automation Agent for Primo PI Assistant™ by Primus Software Corporation. You assess process automation readiness for banking and financial services clients.
+
+Guide the user through:
+1. Process context — confirm PI completion and stability
+2. Structural Readiness — 5 factors scored 0-20 each (standardization ≥80%, volume, quality/error ≤3%, simplicity ≤10 steps, consistency/exceptions ≤10%)
+3. Financial Gate — annual savings ≥$25K, payback ≤12 months, 3-yr ROI ≥50%
+4. Technical Feasibility — APIs, data structure, system integration
+5. Decision — STRONG CANDIDATE / POTENTIAL-REVIEW / IMPROVE FIRST
+
+Key rules:
+- Automation proceeds ONLY if BOTH structural score ≥80/100 AND financial gate pass
+- PrimeOne is the automation platform for POPPI scoring and dashboards
+- Flag GRC control preservation needs (SOX, AML/KYC, OCC/FFIEC, Basel III)
+- Recommend automation type: RPA, Intelligent Automation, or Agentic AI
+
+Tone: Technical, peer-level, concise.`;
+
+async function sendAuto(){
+  if(autoThinking)return;
+  const inp=document.getElementById('autoInput');const val=inp.value.trim();if(!val)return;
+  inp.value='';inp.style.height='auto';
+  appendMsg('auto-messages','user',val,'av-user');
+  autoHistory.push({role:'user',content:val});
+  autoThinking=true;document.getElementById('auto-send').disabled=true;
+  const tw=document.createElement('div');tw.className='msg bot';
+  tw.innerHTML=`<div class="msg-avatar av-primo">🤖</div><div class="typing-ind"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`;
+  document.getElementById('auto-messages').appendChild(tw);scrollBot('auto-messages');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:AUTO_SYSTEM,messages:autoHistory})});
+    const data=await res.json();tw.remove();
+    const reply=data.content?.map(b=>b.text||'').join('')||'Connection issue — please try again.';
+    autoHistory.push({role:'assistant',content:reply});
+    const fmt=reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n- /g,'<br>• ').replace(/\n(\d+)\. /g,'<br>$1. ');
+    appendMsg('auto-messages','bot',fmt,'av-primo');
+  }catch(e){tw.remove();appendMsg('auto-messages','bot','Connection issue. Please try again.','av-primo');}
+  autoThinking=false;document.getElementById('auto-send').disabled=false;
+}
+
+function initAutoBot(){
+  appendMsg('auto-messages','bot',
+    `Welcome to the <strong>Automation Agent</strong> — powered by Claude AI.<br><br>I assess process automation readiness using the Primo structural scorecard and financial gates.<br><br><strong>Both gates must pass for automation to proceed:</strong><br>• Structural Readiness ≥ 80/100<br>• Savings ≥ $25K · Payback ≤ 12 months · ROI ≥ 50%<br><br>Have you completed process improvement, or are you starting a new assessment?`,
+    'av-primo');
+  addChips('auto-messages',['Coming from PI Agent — process improved','Starting fresh assessment','Review the decision logic','Import PI results'],
+    v=>{document.getElementById('autoInput').value=v;sendAuto();});
+}
+
+function resetAll(){
+  piStep=0;piGRC=[];Object.keys(piData).forEach(k=>delete piData[k]);
+  document.getElementById('pi-messages').innerHTML='';
+  document.getElementById('pi-chat-view').classList.add('active');
+  document.getElementById('pi-dash-view').classList.remove('active');
+  setPiNav(0);
+  autoHistory.length=0;document.getElementById('auto-messages').innerHTML='';
+  setTimeout(()=>{askPiQuestion(0);initAutoBot();},200);
+}
+
+window.onload=()=>{askPiQuestion(0);initAutoBot();};
 </script>
 </body>
 </html>
