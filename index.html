@@ -38,8 +38,15 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:
 .wf-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .dot-pi{background:var(--green);}
 .dot-auto{background:var(--red);}
+.sub-tabs{background:var(--green-pale);border-bottom:1px solid var(--border);display:flex;padding:0 1.5rem;gap:0;}
+.sub-tab{padding:0 1.25rem;height:38px;background:none;border:none;border-bottom:2px solid transparent;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;white-space:nowrap;margin-bottom:-1px;transition:all 0.15s;}
+.sub-tab:hover{color:var(--green);}
+.sub-tab.active{color:var(--green-dark);border-bottom-color:var(--green);font-weight:600;}
+.sub-panel{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.sub-panel.active{display:flex;}
+.pi-agent-wrap{display:flex;flex-direction:column;height:100%;}
 
-.app-body{display:grid;grid-template-columns:240px 1fr;height:calc(100vh - 104px);}
+.app-body{display:grid;grid-template-columns:240px 1fr;height:100%;}.app-body-pi{display:grid;grid-template-columns:240px 1fr;height:100%;}
 
 .sidebar{background:var(--green);display:flex;flex-direction:column;overflow:hidden;}
 .sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto;}
@@ -195,48 +202,95 @@ textarea::placeholder{color:var(--text-hint);}
 </div>
 
 <div class="workflow-tabs">
-  <button class="wf-tab active" onclick="switchWorkflow('pi',this)"><span class="wf-dot dot-pi"></span>Process Improvement Agent</button>
+  <button class="wf-tab active" onclick="switchWorkflow('pi',this)"><span class="wf-dot dot-pi"></span>PI Agent</button>
   <button class="wf-tab" onclick="switchWorkflow('auto',this)"><span class="wf-dot dot-auto"></span>Automation Agent</button>
 </div>
 
 <!-- PI WORKFLOW -->
 <div id="wf-pi" class="tab-panel active">
-<div class="app-body">
-  <div class="sidebar">
-    <div class="sidebar-nav">
-      <div class="nav-section-label">Current State</div>
-      <div class="nav-item active" id="pi-nav-0">Process Basics<span class="nav-check" id="pi-chk-0">○</span></div>
-      <div class="nav-item" id="pi-nav-1">Time &amp; Volume<span class="nav-check" id="pi-chk-1">○</span></div>
-      <div class="nav-item" id="pi-nav-2">Resources &amp; Cost<span class="nav-check" id="pi-chk-2">○</span></div>
-      <div class="nav-item" id="pi-nav-3">Quality Metrics<span class="nav-check" id="pi-chk-3">○</span></div>
-      <div class="nav-item" id="pi-nav-4">Complexity<span class="nav-check" id="pi-chk-4">○</span></div>
-      <div class="nav-section-label">Target State</div>
-      <div class="nav-item" id="pi-nav-5">Improvement Targets<span class="nav-check" id="pi-chk-5">○</span></div>
-      <div class="nav-item" id="pi-nav-6">Investment Plan<span class="nav-check" id="pi-chk-6">○</span></div>
-      <div class="nav-section-label">Output</div>
-      <div class="nav-item" id="pi-nav-7">Dashboard &amp; ROI<span class="nav-check" id="pi-chk-7">○</span></div>
-    </div>
-    <div class="sidebar-footer">©2026 Powered by PRIMUS. All Rights Reserved.</div>
+<div class="pi-agent-wrap">
+
+  <!-- PI Sub-tabs -->
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="switchSubTab('owner',this)">Process Owner</button>
+    <button class="sub-tab" onclick="switchSubTab('sme',this)">PI SME</button>
   </div>
-  <div class="content-area">
-    <div class="view active" id="pi-chat-view">
-      <div class="chat-messages" id="pi-messages"></div>
-      <div class="chat-input-wrap">
-        <div class="input-row">
-          <div class="textarea-wrap">
-            <textarea id="piInput" placeholder="Type your answer here..." rows="1" onkeydown="handleKey(event,'pi')" oninput="autoResize(this)"></textarea>
+
+  <!-- PROCESS OWNER SUB-PANEL -->
+  <div id="sub-owner" class="sub-panel active">
+  <div class="app-body-pi">
+    <div class="sidebar">
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Primo Intake</div>
+        <div class="nav-item active" id="own-nav-0">Process Basics<span class="nav-check" id="own-chk-0">○</span></div>
+        <div class="nav-item" id="own-nav-1">Pain Points<span class="nav-check" id="own-chk-1">○</span></div>
+        <div class="nav-item" id="own-nav-2">Volume &amp; Frequency<span class="nav-check" id="own-chk-2">○</span></div>
+        <div class="nav-section-label">Triage</div>
+        <div class="nav-item" id="own-nav-3">Business Impact<span class="nav-check" id="own-chk-3">○</span></div>
+        <div class="nav-item" id="own-nav-4">Intake Report<span class="nav-check" id="own-chk-4">○</span></div>
+      </div>
+      <div class="sidebar-footer">©2026 Powered by PRIMUS. All Rights Reserved.</div>
+    </div>
+    <div class="content-area">
+      <div class="view active">
+        <div class="chat-messages" id="own-messages"></div>
+        <div class="chat-input-wrap">
+          <div class="input-row">
+            <div class="textarea-wrap">
+              <textarea id="ownInput" placeholder="Type your answer here..." rows="1" onkeydown="handleKey(event,'owner')" oninput="autoResize(this)"></textarea>
+            </div>
+            <button class="send-btn" id="own-send" onclick="sendOwner()">
+              <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+            </button>
           </div>
-          <button class="send-btn" id="pi-send" onclick="sendPI()">
-            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
-          </button>
+          <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
         </div>
-        <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
       </div>
     </div>
-    <div class="view" id="pi-dash-view">
-      <div class="dashboard-view" id="pi-dashboard"></div>
+  </div>
+  </div>
+
+  <!-- PI SME SUB-PANEL -->
+  <div id="sub-sme" class="sub-panel">
+  <div class="app-body-pi">
+    <div class="sidebar">
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Current State</div>
+        <div class="nav-item active" id="pi-nav-0">Process Basics<span class="nav-check" id="pi-chk-0">○</span></div>
+        <div class="nav-item" id="pi-nav-1">Time &amp; Volume<span class="nav-check" id="pi-chk-1">○</span></div>
+        <div class="nav-item" id="pi-nav-2">Resources &amp; Cost<span class="nav-check" id="pi-chk-2">○</span></div>
+        <div class="nav-item" id="pi-nav-3">Quality Metrics<span class="nav-check" id="pi-chk-3">○</span></div>
+        <div class="nav-item" id="pi-nav-4">Complexity<span class="nav-check" id="pi-chk-4">○</span></div>
+        <div class="nav-section-label">Target State</div>
+        <div class="nav-item" id="pi-nav-5">Improvement Targets<span class="nav-check" id="pi-chk-5">○</span></div>
+        <div class="nav-item" id="pi-nav-6">Investment Plan<span class="nav-check" id="pi-chk-6">○</span></div>
+        <div class="nav-section-label">Output</div>
+        <div class="nav-item" id="pi-nav-7">Dashboard &amp; ROI<span class="nav-check" id="pi-chk-7">○</span></div>
+      </div>
+      <div class="sidebar-footer">©2026 Powered by PRIMUS. All Rights Reserved.</div>
+    </div>
+    <div class="content-area">
+      <div class="view active" id="pi-chat-view">
+        <div class="chat-messages" id="pi-messages"></div>
+        <div class="chat-input-wrap">
+          <div class="input-row">
+            <div class="textarea-wrap">
+              <textarea id="piInput" placeholder="Type your answer here..." rows="1" onkeydown="handleKey(event,'pi')" oninput="autoResize(this)"></textarea>
+            </div>
+            <button class="send-btn" id="pi-send" onclick="sendPI()">
+              <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+            </button>
+          </div>
+          <div class="input-hint">Press Enter to send · Shift+Enter for new line</div>
+        </div>
+      </div>
+      <div class="view" id="pi-dash-view">
+        <div class="dashboard-view" id="pi-dashboard"></div>
+      </div>
     </div>
   </div>
+  </div>
+
 </div>
 </div>
 
@@ -647,6 +701,125 @@ function initAutoBot(){
     v=>{document.getElementById('autoInput').value=v;sendAuto();});
 }
 
+
+// ─── SUB-TAB SWITCHER ───
+function switchSubTab(which, btn){
+  document.querySelectorAll('.sub-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sub-'+which).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── PROCESS OWNER BOT ───
+const ownerData={};let ownerStep=0;let ownerGRC=[];
+
+function setOwnNav(idx){
+  document.querySelectorAll('[id^="own-nav-"]').forEach((n,i)=>{
+    n.classList.remove('active','completed');
+    if(i<idx){n.classList.add('completed');const c=document.getElementById('own-chk-'+i);if(c)c.textContent='✓';}
+    if(i===idx)n.classList.add('active');
+  });
+}
+
+const ownerFlow=[
+  {s:0,ask:`👋 Welcome to the <strong>Process Owner Bot</strong> — Primo Intake.<br><br>I'll guide you through a quick, plain-language capture of your process improvement request.<br><br><strong>What is the name of the process you'd like to improve?</strong>`,key:'processName',chips:['Loan Document Review','New Account Opening','Monthly Reconciliation','Mortgage Origination','AML/KYC Screening','Wire Transfer Processing']},
+  {s:0,ask:(d)=>`Which <strong>department</strong> owns the <em>${d.processName}</em> process?`,key:'department',chips:['Operations','Compliance','Lending','Finance','Risk Management','HR','Technology']},
+  {s:0,ask:`In one or two sentences, <strong>what does this process accomplish?</strong> What's its purpose?`,key:'purpose'},
+  {s:0,ask:`Who are the <strong>main people involved</strong> — internally and externally?`,key:'stakeholders',chips:['Internal team only','Internal + customers','Internal + vendors','All three']},
+  {s:0,ask:`What <strong>systems or tools</strong> are used in this process today?`,key:'systems',chips:['Core banking system','Encompass / LOS','Salesforce','Excel / manual','Mix of systems','Paper-based']},
+  {s:1,ask:`Now the important part — <strong>what's the main problem or frustration</strong> with this process right now?`,key:'painPoint'},
+  {s:1,ask:`<strong>Who is most affected</strong> by this problem?`,key:'affected',chips:['My team','Our customers','Leadership / reporting','All of the above']},
+  {s:1,ask:`Have there been any <strong>missed deadlines, compliance issues, or customer complaints</strong> because of this process?`,key:'incidents',chips:['Yes — compliance issues','Yes — customer complaints','Yes — missed deadlines','No major incidents yet']},
+  {s:2,ask:`<strong>How often</strong> does this process run?`,key:'frequency',chips:['Daily','Weekly','Monthly','Per transaction / on demand']},
+  {s:2,ask:`How many <strong>transactions or people</strong> does it handle in a typical month?`,key:'volume',chips:['Under 100','100–500','500–2,000','2,000+']},
+  {s:3,ask:`If this process was improved, <strong>what would be the biggest win</strong> for your team or customers?`,key:'biggestWin'},
+  {s:3,ask:`On a scale of <strong>1–5, how urgent</strong> is it to fix this process?`,key:'urgency',chips:['1 — Low priority','2 — Moderate','3 — Important','4 — High priority','5 — Business critical']},
+  {s:3,ask:`Do you have <strong>leadership support</strong> to make changes to this process?`,key:'leadershipSupport',chips:['Yes — full support','Partial — some buy-in','Not yet — need to build case','Unknown']},
+  {s:3,ask:`Is your goal to <strong>improve the process as-is</strong>, or are you also open to <strong>automating</strong> parts of it?`,key:'automationInterest',chips:['Improve process only','Open to automation','Automation is the goal','Not sure yet']},
+];
+
+function processOwnerAnswer(val){
+  const q=ownerFlow[ownerStep];
+  ownerData[q.key]=val;
+  appendMsg('own-messages','user',val,'av-user');
+  if(['processName','purpose','painPoint'].includes(q.key)){
+    const flags=detectGRC(val+' '+(ownerData.processName||''));
+    if(flags.length){
+      ownerGRC=[...new Set([...ownerGRC,...flags])];
+      if(ownerStep===0){
+        setTimeout(()=>{
+          const last=document.getElementById('own-messages').lastElementChild;
+          if(last){const b=last.querySelector('.msg-bubble');if(b)b.innerHTML+=`<div class="grc-flag">🔒 <strong>Compliance flagged:</strong> ${ownerGRC.join(' · ')} — noted for the intake report.</div>`;}
+        },300);
+      }
+    }
+  }
+  ownerStep++;
+  if(ownerStep>=ownerFlow.length){setTimeout(()=>generateOwnerReport(),420);}
+  else setTimeout(()=>askOwnerQuestion(ownerStep),420);
+}
+
+function askOwnerQuestion(idx){
+  const q=ownerFlow[idx];
+  if(q.s!==undefined)setOwnNav(q.s);
+  const text=typeof q.ask==='function'?q.ask(ownerData):q.ask;
+  appendMsg('own-messages','bot',text,'av-primo');
+  if(q.chips)addChips('own-messages',q.chips,v=>processOwnerAnswer(v));
+}
+
+function sendOwner(){
+  const inp=document.getElementById('ownInput');const val=inp.value.trim();if(!val)return;
+  inp.value='';inp.style.height='auto';processOwnerAnswer(val);
+}
+
+function generateOwnerReport(){
+  setOwnNav(4);
+  const d=ownerData;
+  const urgNum=parseInt(d.urgency)||3;
+  const priority=urgNum>=4?'HIGH':urgNum===3?'MEDIUM':'LOW';
+  const priorityColor=urgNum>=4?'#C05020':urgNum===3?'var(--amber)':'var(--green)';
+  const pathway=d.automationInterest&&/automat/i.test(d.automationInterest)?'PI + Automation Track':'Process Improvement Track';
+  const grcHtml=ownerGRC.length?`<div class="grc-flag" style="margin:8px 13px 4px">🔒 <strong>GRC Flags:</strong> ${ownerGRC.join(' · ')}</div>`:'';
+
+  const report=`<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-top:8px;box-shadow:var(--shadow)">
+    <div style="background:var(--green-dark);padding:9px 13px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.85);text-transform:uppercase;letter-spacing:0.4px">Primo Intake Report</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.5)">${new Date().toLocaleDateString()}</span>
+    </div>
+    <div style="padding:10px 13px">
+      ${[['Process',d.processName],['Department',d.department],['Purpose',d.purpose],['Stakeholders',d.stakeholders],['Systems',d.systems],['Pain Point',d.painPoint],['Affected Parties',d.affected],['Incidents',d.incidents],['Frequency',d.frequency],['Monthly Volume',d.volume],['Biggest Win',d.biggestWin],['Leadership Support',d.leadershipSupport]].map(([k,v])=>v?`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-muted);min-width:130px;flex-shrink:0">${k}</span><span style="color:var(--text);font-weight:500">${v}</span></div>`:'').join('')}
+      <div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-muted);min-width:130px;flex-shrink:0">PI Priority</span><span style="color:${priorityColor};font-weight:700">${priority}</span></div>
+      <div style="display:flex;gap:8px;padding:4px 0;font-size:12px"><span style="color:var(--text-muted);min-width:130px;flex-shrink:0">Recommended Path</span><span style="color:var(--text);font-weight:500">${pathway}</span></div>
+    </div>
+    ${grcHtml}
+    <button onclick="downloadOwnerReport()" style="margin:8px 13px 10px;padding:6px 12px;background:var(--green);color:white;border:none;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer">↓ Download Report</button>
+  </div>`;
+
+  appendMsg('own-messages','bot',
+    `Your <strong>Primo Intake Report</strong> is ready!${ownerGRC.length?' I flagged <strong>'+ownerGRC.join(', ')+'</strong> compliance considerations.':''} Hand this off to your PI SME to continue the assessment.${report}`,
+    'av-primo');
+
+  setTimeout(()=>{
+    appendMsg('own-messages','bot',
+      `<strong>What would you like to do next?</strong><div class="chips" style="margin-top:8px"><button class="chip" onclick="document.querySelectorAll('.sub-tab')[1].click();switchSubTab('sme',document.querySelectorAll('.sub-tab')[1])">→ Move to PI SME</button><button class="chip" onclick="resetOwner()">Start a new intake</button></div>`,
+      'av-primo');
+  },600);
+}
+
+function downloadOwnerReport(){
+  const d=ownerData;
+  const lines=Object.entries(d).map(([k,v])=>k+': '+v).join('\n');
+  const blob=new Blob(['PRIMO INTAKE REPORT\nPrimus Software Corporation\n'+new Date().toLocaleDateString()+'\n\n'+lines+'\n\nGRC Flags: '+(ownerGRC.join(', ')||'None')],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Primo-Intake-'+(d.processName||'Report')+'.txt';a.click();
+}
+
+function resetOwner(){
+  ownerStep=0;ownerGRC=[];Object.keys(ownerData).forEach(k=>delete ownerData[k]);
+  document.getElementById('own-messages').innerHTML='';
+  setOwnNav(0);
+  setTimeout(()=>askOwnerQuestion(0),200);
+}
+
 function resetAll(){
   piStep=0;piGRC=[];Object.keys(piData).forEach(k=>delete piData[k]);
   document.getElementById('pi-messages').innerHTML='';
@@ -654,10 +827,11 @@ function resetAll(){
   document.getElementById('pi-dash-view').classList.remove('active');
   setPiNav(0);
   autoHistory.length=0;document.getElementById('auto-messages').innerHTML='';
-  setTimeout(()=>{askPiQuestion(0);initAutoBot();},200);
+  resetOwner();
+  setTimeout(()=>{askPiQuestion(0);initAutoBot();askOwnerQuestion(0);},200);
 }
 
-window.onload=()=>{askPiQuestion(0);initAutoBot();};
+window.onload=()=>{askPiQuestion(0);initAutoBot();askOwnerQuestion(0);};
 </script>
 </body>
 </html>
