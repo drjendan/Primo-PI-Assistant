@@ -369,11 +369,22 @@ function appendMsg(cid,role,html,avClass){
 }
 function addChips(cid,chips,onSelect){
   const el=document.getElementById(cid);
-  const w=document.createElement('div');w.className='chips';
+  const w=document.createElement('div');
+  w.innerHTML='<div style="font-size:10px;color:var(--text-hint);margin-bottom:4px;margin-top:6px;">Suggestions — click to fill, or type your own answer:</div>';
+  w.className='chips-wrap';
+  const chipRow=document.createElement('div');chipRow.className='chips';
+  // find the right textarea for this chat panel
+  const inputId=cid==='own-messages'?'ownInput':cid==='pi-messages'?'piInput':'autoInput';
   chips.forEach(c=>{
     const btn=document.createElement('button');btn.className='chip';btn.textContent=c;
-    btn.onclick=()=>{w.remove();onSelect(c);};w.appendChild(btn);
+    btn.onclick=(e)=>{
+      e.preventDefault();
+      const inp=document.getElementById(inputId);
+      if(inp){inp.value=c;inp.focus();autoResize(inp);}
+    };
+    chipRow.appendChild(btn);
   });
+  w.appendChild(chipRow);
   el.lastElementChild?.querySelector('.msg-bubble')?.appendChild(w);scrollBot(cid);
 }
 
