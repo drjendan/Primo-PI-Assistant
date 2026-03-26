@@ -310,16 +310,17 @@ textarea::placeholder{color:var(--text-hint);}
   </div>
   <div class="content-area">
     <div class="view active">
-      <div style="padding:10px 1.5rem 0;background:var(--white);border-bottom:1px solid var(--border);">
+      <div id="api-key-bar" style="padding:10px 1.5rem 0;background:var(--white);border-bottom:1px solid var(--border);">
         <div style="display:flex;align-items:center;gap:8px;">
           <label style="font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap;">Gemini API Key</label>
           <input id="gemini-api-key" type="password" placeholder="Paste your Google Gemini API key here..." 
             style="flex:1;padding:5px 10px;border:1px solid var(--border-mid);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:12px;color:var(--text);background:var(--bg);outline:none;"
-            onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-mid)'"
-            oninput="if(this.value)window._geminiKey=this.value">
+            onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-mid)'">
+          <button onclick="saveApiKey()" style="padding:5px 10px;background:var(--green);color:white;border:none;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;">Save Key</button>
+          <button onclick="clearApiKey()" style="padding:5px 10px;background:none;color:var(--text-muted);border:1px solid var(--border-mid);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;white-space:nowrap;">Clear</button>
           <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:11px;color:var(--green);white-space:nowrap;text-decoration:none;">Get key →</a>
         </div>
-        <div style="font-size:10px;color:var(--text-hint);margin-top:4px;padding-bottom:8px;">Your key is used only in this session and never stored. Get a free key at Google AI Studio.</div>
+        <div id="api-key-status" style="font-size:10px;color:var(--text-hint);margin-top:4px;padding-bottom:8px;">Enter your key once and click Save — it will be remembered on this device.</div>
       </div>
       <div class="chat-messages" id="auto-messages"></div>
       <div class="chat-input-wrap">
@@ -693,17 +694,33 @@ async function sendAuto(){
   tw.innerHTML=`<div class="msg-avatar av-primo">🤖</div><div class="typing-ind"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`;
   document.getElementById('auto-messages').appendChild(tw);scrollBot('auto-messages');
   try{
-    const apiKey=document.getElementById('gemini-api-key')?.value?.trim()||window._geminiKey||'';
-    if(!apiKey){tw.remove();appendMsg('auto-messages','bot','Please enter your Google Gemini API key above to use the AI-powered bot.','av-primo');autoThinking=false;document.getElementById('auto-send').disabled=false;return;}
-    const geminiMessages=[{role:'user',parts:[{text:AUTO_SYSTEM+'\n\n'+autoHistory.map(m=>(m.role==='user'?'User: ':'Assistant: ')+m.content).join('\n\n')}]}];
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:geminiMessages,generationConfig:{maxOutputTokens:1000}})});
-    const data=await res.json();tw.remove();
-    const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||data.error?.message||'Connection issue — please try again.';
-    autoHistory.push({role:'assistant',content:reply});
-    const fmt=reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n- /g,'<br>• ').replace(/\n(\d+)\. /g,'<br>$1. ');
-    appendMsg('auto-messages','bot',fmt,'av-primo');
-  }catch(e){tw.remove();appendMsg('auto-messages','bot','Connection issue. Please try again.','av-primo');}
+    const apiKey=localStorage.getItem('primo_gemini_key')||document.getElementById('gemini-api-key')?.value?.trim()||'';
+    if(!apiKey){tw.remove();appendMsg('auto-messages','bot','Please enter your Google Gemini API key in the field above to use the AI-powered bot.','av-primo');autoThinking=false;document.getElementById('auto-send').disabled=false;return;}
+    // Build proper Gemini multi-turn conversation format
+    const contents=[];
+    // Add system prompt as first user turn
+    contents.push({role:'user',parts:[{text:'SYSTEM INSTRUCTIONS:\n'+AUTO_SYSTEM}]});
+    contents.push({role:'model',parts:[{text:'Understood. I am ready to assist as the Primo PI Assistant Automation Agent.'}]});
+    // Add conversation history
+    autoHistory.forEach(m=>{
+      contents.push({role:m.role==='user'?'user':'model',parts:[{text:m.content}]});
+    });
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key='+apiKey,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:contents,generationConfig:{maxOutputTokens:1000,temperature:0.7}})
+    });
+    const data=await res.json();
+    tw.remove();
+    if(data.error){
+      appendMsg('auto-messages','bot','API Error: '+data.error.message,'av-primo');
+    } else {
+      const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received. Please try again.';
+      autoHistory.push({role:'assistant',content:reply});
+      const fmt=reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n- /g,'<br>• ').replace(/\n(\d+)\. /g,'<br>$1. ');
+      appendMsg('auto-messages','bot',fmt,'av-primo');
+    }
+  }catch(e){tw.remove();appendMsg('auto-messages','bot','Connection error: '+e.message+'. Please check your API key and try again.','av-primo');}
   autoThinking=false;document.getElementById('auto-send').disabled=false;
 }
 
@@ -834,6 +851,32 @@ function resetOwner(){
   setTimeout(()=>askOwnerQuestion(0),200);
 }
 
+
+function saveApiKey(){
+  const inp=document.getElementById('gemini-api-key');
+  const key=inp?.value?.trim();
+  if(!key){showKeyStatus('Please paste your API key first.','#C05020');return;}
+  localStorage.setItem('primo_gemini_key',key);
+  inp.value='';
+  showKeyStatus('✓ Key saved — you won\'t need to enter it again on this device.','var(--green)');
+}
+function clearApiKey(){
+  localStorage.removeItem('primo_gemini_key');
+  const inp=document.getElementById('gemini-api-key');
+  if(inp)inp.value='';
+  showKeyStatus('Key cleared. Paste a new key to continue.','var(--amber)');
+}
+function showKeyStatus(msg,color){
+  const el=document.getElementById('api-key-status');
+  if(el){el.textContent=msg;el.style.color=color;}
+}
+function initApiKeyBar(){
+  const saved=localStorage.getItem('primo_gemini_key');
+  if(saved){
+    showKeyStatus('✓ API key saved and ready — click Clear to remove it.','var(--green)');
+  }
+}
+
 function resetAll(){
   piStep=0;piGRC=[];Object.keys(piData).forEach(k=>delete piData[k]);
   document.getElementById('pi-messages').innerHTML='';
@@ -845,7 +888,7 @@ function resetAll(){
   setTimeout(()=>{askPiQuestion(0);initAutoBot();askOwnerQuestion(0);},200);
 }
 
-window.onload=()=>{askPiQuestion(0);initAutoBot();askOwnerQuestion(0);};
+window.onload=()=>{askPiQuestion(0);initAutoBot();askOwnerQuestion(0);initApiKeyBar();};
 </script>
 </body>
 </html>
