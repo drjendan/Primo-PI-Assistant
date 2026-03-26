@@ -42,11 +42,11 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:
 .sub-tab{padding:0 1.25rem;height:38px;background:none;border:none;border-bottom:2px solid transparent;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;white-space:nowrap;margin-bottom:-1px;transition:all 0.15s;}
 .sub-tab:hover{color:var(--green);}
 .sub-tab.active{color:var(--green-dark);border-bottom-color:var(--green);font-weight:600;}
-.sub-panel{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.sub-panel{display:none;flex:1;flex-direction:column;overflow:hidden;height:calc(100vh - 143px);}
 .sub-panel.active{display:flex;}
-.pi-agent-wrap{display:flex;flex-direction:column;height:100%;}
+.pi-agent-wrap{display:flex;flex-direction:column;height:calc(100vh - 104px);}
 
-.app-body{display:grid;grid-template-columns:240px 1fr;height:100%;}.app-body-pi{display:grid;grid-template-columns:240px 1fr;height:100%;}
+.app-body{display:grid;grid-template-columns:240px 1fr;height:100%;}.app-body-pi{display:grid;grid-template-columns:240px 1fr;height:100%;min-height:0;}
 
 .sidebar{background:var(--green);display:flex;flex-direction:column;overflow:hidden;}
 .sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto;}
@@ -237,7 +237,7 @@ textarea::placeholder{color:var(--text-hint);}
         <div class="chat-input-wrap">
           <div class="input-row">
             <div class="textarea-wrap">
-              <textarea id="ownInput" placeholder="Type your answer here..." rows="1" onkeydown="handleKey(event,'owner')" oninput="autoResize(this)"></textarea>
+              <textarea id="ownInput" placeholder="Type your answer here..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendOwner();}" oninput="autoResize(this)"></textarea>
             </div>
             <button class="send-btn" id="own-send" onclick="sendOwner()">
               <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
@@ -275,7 +275,7 @@ textarea::placeholder{color:var(--text-hint);}
         <div class="chat-input-wrap">
           <div class="input-row">
             <div class="textarea-wrap">
-              <textarea id="piInput" placeholder="Type your answer here..." rows="1" onkeydown="handleKey(event,'pi')" oninput="autoResize(this)"></textarea>
+              <textarea id="piInput" placeholder="Type your answer here..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendPI();}" oninput="autoResize(this)"></textarea>
             </div>
             <button class="send-btn" id="pi-send" onclick="sendPI()">
               <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
@@ -326,7 +326,7 @@ textarea::placeholder{color:var(--text-hint);}
       <div class="chat-input-wrap">
         <div class="input-row">
           <div class="textarea-wrap">
-            <textarea id="autoInput" placeholder="Describe the process or answer the question..." rows="1" onkeydown="handleKey(event,'auto')" oninput="autoResize(this)"></textarea>
+            <textarea id="autoInput" placeholder="Describe the process or answer the question..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAuto();}" oninput="autoResize(this)"></textarea>
           </div>
           <button class="send-btn" id="auto-send" onclick="sendAuto()">
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
