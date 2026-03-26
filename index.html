@@ -310,6 +310,17 @@ textarea::placeholder{color:var(--text-hint);}
   </div>
   <div class="content-area">
     <div class="view active">
+      <div style="padding:10px 1.5rem 0;background:var(--white);border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:11px;font-weight:600;color:var(--text-muted);white-space:nowrap;">Gemini API Key</label>
+          <input id="gemini-api-key" type="password" placeholder="Paste your Google Gemini API key here..." 
+            style="flex:1;padding:5px 10px;border:1px solid var(--border-mid);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:12px;color:var(--text);background:var(--bg);outline:none;"
+            onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border-mid)'"
+            oninput="if(this.value)window._geminiKey=this.value">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:11px;color:var(--green);white-space:nowrap;text-decoration:none;">Get key →</a>
+        </div>
+        <div style="font-size:10px;color:var(--text-hint);margin-top:4px;padding-bottom:8px;">Your key is used only in this session and never stored. Get a free key at Google AI Studio.</div>
+      </div>
       <div class="chat-messages" id="auto-messages"></div>
       <div class="chat-input-wrap">
         <div class="input-row">
@@ -682,10 +693,13 @@ async function sendAuto(){
   tw.innerHTML=`<div class="msg-avatar av-primo">🤖</div><div class="typing-ind"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`;
   document.getElementById('auto-messages').appendChild(tw);scrollBot('auto-messages');
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:AUTO_SYSTEM,messages:autoHistory})});
+    const apiKey=document.getElementById('gemini-api-key')?.value?.trim()||window._geminiKey||'';
+    if(!apiKey){tw.remove();appendMsg('auto-messages','bot','Please enter your Google Gemini API key above to use the AI-powered bot.','av-primo');autoThinking=false;document.getElementById('auto-send').disabled=false;return;}
+    const geminiMessages=[{role:'user',parts:[{text:AUTO_SYSTEM+'\n\n'+autoHistory.map(m=>(m.role==='user'?'User: ':'Assistant: ')+m.content).join('\n\n')}]}];
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:geminiMessages,generationConfig:{maxOutputTokens:1000}})});
     const data=await res.json();tw.remove();
-    const reply=data.content?.map(b=>b.text||'').join('')||'Connection issue — please try again.';
+    const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||data.error?.message||'Connection issue — please try again.';
     autoHistory.push({role:'assistant',content:reply});
     const fmt=reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n- /g,'<br>• ').replace(/\n(\d+)\. /g,'<br>$1. ');
     appendMsg('auto-messages','bot',fmt,'av-primo');
