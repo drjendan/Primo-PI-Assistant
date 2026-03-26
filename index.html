@@ -576,8 +576,7 @@ const ownerFlow=[
   {s:0,ask:`Briefly describe the <strong>purpose</strong> of this process — what does it accomplish?`,key:'purpose'},
   {s:1,ask:`Who are the <strong>main people involved</strong> — internally and externally?`,key:'stakeholders',
    chips:['Internal team only','Internal + customers','Internal + vendors','All three'],multi:false},
-  {s:1,ask:(d)=>`Besides <strong>${d.department||'your department'}</strong>, which other <strong>internal departments</strong> are involved?<br><span style="font-size:12px;color:var(--text-muted)">List all departments that touch this process.</span>`,key:'internalDepts'},
-  {s:1,ask:(d)=>`For the departments you listed, are they <strong>upstream</strong> (they send work to you) or <strong>downstream</strong> (they receive work from you)?<br><br><em style="font-size:12px">Example: "Compliance — upstream, IT — downstream"</em>`,key:'deptDirection'},
+  {s:1,ask:(d)=>`Besides <strong>${d.department||'your department'}</strong>, are there any other internal departments involved in this process?`,key:'_deptYesNo',chips:['Yes','No']},
   {s:1,ask:`What <strong>systems or tools</strong> are used in this process today?`,key:'systems',
    chips:['Core banking system','Encompass / LOS','Salesforce','Excel / manual','Mix of systems','Paper-based']},
   {s:1,ask:`Now let's capture the <strong>process steps</strong>.<br><br>Please describe each step from start to finish. You can type them all at once — for example:<br><br><em>"1. Receive application, 2. Verify identity, 3. Run credit check, 4. Manager approval, 5. Send decision to customer"</em><br><br><strong>List all your process steps:</strong>`,key:'processSteps'},
@@ -618,6 +617,55 @@ function goBackOwner(){
 function processOwnerAnswer(val){
   const q=ownerFlow[ownerStep];
   ownerHistory.push({step:ownerStep});
+
+  // Handle dept loop questions
+  if(q.key==='_deptYesNo'){
+    appendMsg('own-messages','user',val,'av-user');
+    if(/yes/i.test(val)){
+      // Ask for dept name and direction
+      setTimeout(()=>{
+        appendMsg('own-messages','bot',`What is the name of the department, and are they <strong>upstream</strong> (they send work to you) or <strong>downstream</strong> (they receive work from you)?<br><br><em style="font-size:12px">Example: "Compliance — upstream" or "IT — downstream"</em>`,'av-primo');
+        addChips('own-messages',[],()=>{},false);
+        // Set a flag so next answer goes to dept collection
+        ownerData._collectingDept=true;
+      },400);
+    } else {
+      // No more depts — move on
+      ownerData._collectingDept=false;
+      ownerStep++;
+      if(ownerStep>=ownerFlow.length){setTimeout(()=>generateOwnerReport(),400);}
+      else setTimeout(()=>askOwnerQuestion(ownerStep),400);
+    }
+    return;
+  }
+
+  if(ownerData._collectingDept){
+    // They just answered a dept name+direction
+    appendMsg('own-messages','user',val,'av-user');
+    if(!ownerData.internalDepts){ownerData.internalDepts=val;}
+    else{ownerData.internalDepts+=', '+val;}
+    ownerData._collectingDept=false;
+    // Ask if there are more
+    setTimeout(()=>{
+      appendMsg('own-messages','bot',`Are there any more internal departments involved?`,'av-primo');
+      addChips('own-messages',['Yes','No'],v=>{
+        document.getElementById('own-messages').querySelectorAll('.chips-row').forEach(e=>e.remove());
+        appendMsg('own-messages','user',v,'av-user');
+        if(/yes/i.test(v)){
+          ownerData._collectingDept=true;
+          setTimeout(()=>{
+            appendMsg('own-messages','bot',`What is the name of the next department and are they upstream or downstream?`,'av-primo');
+          },400);
+        } else {
+          ownerStep++;
+          if(ownerStep>=ownerFlow.length){setTimeout(()=>generateOwnerReport(),400);}
+          else setTimeout(()=>askOwnerQuestion(ownerStep),400);
+        }
+      },false);
+    },400);
+    return;
+  }
+
   ownerData[q.key]=val;
   appendMsg('own-messages','user',val,'av-user');
   // GRC detection
