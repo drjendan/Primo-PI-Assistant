@@ -1344,7 +1344,7 @@ async function callGemini(prompt){
   const key=(localStorage.getItem('primo_gemini_key')||'').trim()||(document.getElementById('gemini-api-key')?.value||'').trim();
   if(!key)return {error:'NO_KEY',text:null};
   try{
-    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key='+key,{
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:800,temperature:0.7}})
     });
@@ -1507,7 +1507,7 @@ async function sendAuto(){
     if(!key){tw.remove();appendMsg('auto-messages','bot','Please save your Gemini API key using the field above.','av-primo');autoThinking=false;document.getElementById('auto-send').disabled=false;return;}
     const contents=[{role:'user',parts:[{text:'SYSTEM:\n'+AUTO_SYSTEM}]},{role:'model',parts:[{text:'Understood. Ready to assess automation readiness as the Primo PI Assistant Automation Agent.'}]}];
     autoHistory.forEach(m=>contents.push({role:m.role==='user'?'user':'model',parts:[{text:m.content}]}));
-    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key='+key,{
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents,generationConfig:{maxOutputTokens:1000,temperature:0.7}})
     });
