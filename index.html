@@ -297,6 +297,13 @@ textarea::placeholder{color:var(--text-hint);}
   </div>
   <div class="header-right">
     <span class="version-tag">Primo PI Assistant™ · v3.0</span>
+    <div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border-mid);border-radius:var(--radius);padding:4px 10px;">
+      <label style="font-size:10px;font-weight:600;color:var(--text-muted);white-space:nowrap;">AI KEY</label>
+      <input id="gemini-api-key" type="password" placeholder="Paste Gemini API key..." 
+        style="border:none;background:none;font-family:'Inter',sans-serif;font-size:11px;color:var(--text);outline:none;width:180px;"
+        oninput="autoSaveKey(this.value)">
+      <span id="api-status" style="font-size:10px;color:var(--green);white-space:nowrap;"></span>
+    </div>
     <div class="primeone-badge">PRIME<span>O</span>ne™</div>
     <button class="new-conv-btn" onclick="resetAll()">+ New Conversation</button>
   </div>
@@ -417,13 +424,10 @@ textarea::placeholder{color:var(--text-hint);}
     <div class="sidebar-footer">©2026 Powered by PRIMUS</div>
   </div>
   <div class="content-area">
-    <div class="api-key-bar">
-      <label>Gemini API Key</label>
-      <input id="gemini-api-key" type="password" placeholder="Paste your Google Gemini API key here...">
-      <button onclick="saveApiKey()" style="padding:4px 10px;background:var(--green);color:white;border:none;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;">Save</button>
-      <button onclick="clearApiKey()" style="padding:4px 10px;background:none;color:var(--text-muted);border:1px solid var(--border-mid);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:11px;cursor:pointer;">Clear</button>
-      <span id="api-status" class="api-status"></span>
-      <a href="https://aistudio.google.com/app/apikey" target="_blank">Get key →</a>
+    <div style="padding:6px 1.5rem;background:var(--green-pale);border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
+      <span>🔑 Enter your Gemini API key in the header above to enable AI features.</span>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--green);font-weight:600;text-decoration:none;">Get a free key →</a>
+      <button onclick="clearApiKey()" style="padding:2px 8px;background:none;color:var(--text-muted);border:1px solid var(--border-mid);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:10px;cursor:pointer;margin-left:auto;">Clear saved key</button>
     </div>
     <div class="view active">
       <div class="chat-messages" id="auto-messages"></div>
@@ -1473,23 +1477,35 @@ function initAutoBot(){
 // ═══════════════════════════════════════════
 // API KEY
 // ═══════════════════════════════════════════
+function autoSaveKey(val){
+  const key=val.trim();
+  if(key.length>10){
+    localStorage.setItem('primo_gemini_key',key);
+    const st=document.getElementById('api-status');
+    if(st){st.textContent='✓ Saved';st.style.color='var(--green)';}
+  }
+}
 function saveApiKey(){
   const inp=document.getElementById('gemini-api-key');
   const key=inp?.value?.trim();
-  if(!key){document.getElementById('api-status').textContent='⚠️ Paste key first';return;}
-  localStorage.setItem('primo_gemini_key',key);inp.value='';
-  document.getElementById('api-status').textContent='✓ Saved';
-  document.getElementById('api-status').style.color='var(--green)';
+  if(!key)return;
+  localStorage.setItem('primo_gemini_key',key);
+  const st=document.getElementById('api-status');
+  if(st){st.textContent='✓ Saved';st.style.color='var(--green)';}
 }
 function clearApiKey(){
   localStorage.removeItem('primo_gemini_key');
-  document.getElementById('gemini-api-key').value='';
-  document.getElementById('api-status').textContent='Cleared';
+  const inp=document.getElementById('gemini-api-key');if(inp)inp.value='';
+  const st=document.getElementById('api-status');if(st)st.textContent='Cleared';
 }
 function initApiKeyBar(){
-  if(localStorage.getItem('primo_gemini_key')){
-    document.getElementById('api-status').textContent='✓ Key ready';
-    document.getElementById('api-status').style.color='var(--green)';
+  const saved=localStorage.getItem('primo_gemini_key');
+  if(saved){
+    const st=document.getElementById('api-status');
+    if(st){st.textContent='✓ Key ready';st.style.color='var(--green)';}
+    // Show masked key hint
+    const inp=document.getElementById('gemini-api-key');
+    if(inp)inp.placeholder='Key saved ✓ — paste to update';
   }
 }
 
