@@ -1293,16 +1293,18 @@ function dSection(id,btn){
 // AI ANALYSIS (Gemini)
 // ═══════════════════════════════════════════
 async function callGemini(prompt){
-  const key=localStorage.getItem('primo_gemini_key')||document.getElementById('gemini-api-key')?.value?.trim()||'';
-  if(!key)return null;
+  const key=(localStorage.getItem('primo_gemini_key')||'').trim()||(document.getElementById('gemini-api-key')?.value||'').trim();
+  if(!key)return {error:'NO_KEY',text:null};
   try{
     const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key='+key,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:800,temperature:0.7}})
     });
     const data=await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text||null;
-  }catch(e){return null;}
+    if(data.error)return {error:data.error.message,text:null};
+    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||null;
+    return {error:null,text};
+  }catch(e){return {error:e.message,text:null};}
 }
 
 function formatAI(text){
@@ -1326,10 +1328,12 @@ async function runAIAnalysis(d,metrics){
   for(const a of analyses){
     const el=document.getElementById(a.id);if(!el)continue;
     const result=await callGemini(a.prompt);
-    if(result){
-      el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge ${a.badge}">AI Generated</span></div><div class="ai-content">${formatAI(result)}</div>`;
+    if(result.text){
+      el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge ${a.badge}">AI Generated</span></div><div class="ai-content">${formatAI(result.text)}</div>`;
+    }else if(result.error==='NO_KEY'){
+      el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge badge-amber">Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Paste your Gemini API key in the header field at the top of the page.</div>`;
     }else{
-      el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge badge-amber">API Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Enter your Gemini API key in the Automation Agent tab to enable AI analysis.</div>`;
+      el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge badge-red">Error</span></div><div style="font-size:12px;color:var(--red)">API Error: ${result.error||'Unknown error'}. Please check your key and try again.</div>`;
     }
   }
 
@@ -1337,10 +1341,12 @@ async function runAIAnalysis(d,metrics){
   const grcEl=document.getElementById('ai-grc');
   if(grcEl){
     const grcResult=await callGemini(`You are a banking compliance and GRC expert. Analyze this process for control gaps and regulatory risks. Context: ${ctx}. Identify: 1) Key controls that must be preserved in any improvement, 2) Control gaps or weaknesses, 3) Regulatory risks if the process is changed, 4) Recommended control enhancements. Be specific to the applicable frameworks: ${metrics.grcFlags.join(', ')||'General banking controls'}.`);
-    if(grcResult){
-      grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-green">AI Generated</span></div><div class="ai-content">${formatAI(grcResult)}</div>`;
+    if(grcResult.text){
+      grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-green">AI Generated</span></div><div class="ai-content">${formatAI(grcResult.text)}</div>`;
+    }else if(grcResult.error==='NO_KEY'){
+      grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-amber">Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Paste your Gemini API key in the header field at the top of the page.</div>`;
     }else{
-      grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-amber">API Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Enter your Gemini API key to enable control gap analysis.</div>`;
+      grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-red">Error</span></div><div style="font-size:12px;color:var(--red)">API Error: ${grcResult.error||'Unknown error'}.</div>`;
     }
   }
 }
@@ -1368,7 +1374,7 @@ async function generateExecSummary(){
   el.innerHTML='<div class="ai-loading" style="padding:1rem">⏳ Generating Executive Summary...</div>';
   const d=smeData;
   const result=await callGemini(`You are a management consultant. Write a one-page executive summary for a process improvement initiative. Use professional language suitable for banking leadership. Include: Problem Statement, Current State (key metrics), Proposed Improvements, Expected Benefits (ROI and non-financial), Recommended Next Steps, and Risk Considerations. Context: Process: ${d.processName}, Department: ${d.department}, Pain point: ${d.painPoint}, Cycle time: ${d.cycleTime}min target ${d.targetCycleTime}min, Error rate: ${d.errorRate}% target ${d.targetErrorRate}%, SLA: ${d.slaCompliance}% target ${d.targetSLA}%.`);
-  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">Executive Summary</span><button class="dash-btn" onclick="downloadText('exec-summary.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">API key required for AI generation.</div>';
+  el.innerHTML=result.text?`<div class="section-card"><div class="section-header"><span class="section-title">Executive Summary</span><button class="dash-btn" onclick="downloadText('exec-summary.txt','${(result.text||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Gemini API key in the header to enable AI generation.</div>';
 }
 
 async function generateSOP(){
@@ -1376,7 +1382,7 @@ async function generateSOP(){
   el.innerHTML='<div class="ai-loading" style="padding:1rem">⏳ Generating SOP First Draft...</div>';
   const d=smeData;
   const result=await callGemini(`You are a banking operations documentation specialist. Write a first-draft Standard Operating Procedure (SOP) for the improved version of this process. Include: 1. Purpose and Scope, 2. Roles and Responsibilities, 3. Prerequisites, 4. Step-by-Step Procedure (based on these steps: ${d.processSteps||'Not captured'}), 5. Exception Handling, 6. Quality Controls, 7. Regulatory Compliance Notes, 8. Document Control. Process: ${d.processName}, Department: ${d.department}. Write it as a proper professional SOP document.`);
-  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">SOP First Draft — ${d.processName}</span><button class="dash-btn" onclick="downloadText('SOP-${(d.processName||'process').replace(/\s/g,'-')}.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">API key required for AI generation.</div>';
+  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">SOP First Draft — ${d.processName}</span><button class="dash-btn" onclick="downloadText('SOP-${(d.processName||'process').replace(/\s/g,'-')}.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Gemini API key in the header to enable AI generation.</div>';
 }
 
 async function generateChangeManagement(){
@@ -1384,7 +1390,7 @@ async function generateChangeManagement(){
   el.innerHTML='<div class="ai-loading" style="padding:1rem">⏳ Generating Change Management Plan...</div>';
   const d=smeData;
   const result=await callGemini(`You are an organizational change management expert specializing in banking. Create a practical change management plan for this process improvement initiative. Include: 1. Change Impact Assessment, 2. Stakeholder Analysis (based on: ${d.stakeholders}, other depts: ${d.internalDepts||'unknown'}), 3. Communication Plan, 4. Training Plan, 5. Resistance Management, 6. Success Metrics, 7. Sustainment Strategy. Process: ${d.processName}, Pain point: ${d.painPoint}. Be specific and actionable.`);
-  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">Change Management Plan</span><button class="dash-btn" onclick="downloadText('change-management-plan.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">API key required for AI generation.</div>';
+  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">Change Management Plan</span><button class="dash-btn" onclick="downloadText('change-management-plan.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Gemini API key in the header to enable AI generation.</div>';
 }
 
 function generateProcessMap(){
