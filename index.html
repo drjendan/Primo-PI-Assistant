@@ -298,11 +298,12 @@ textarea::placeholder{color:var(--text-hint);}
   <div class="header-right">
     <span class="version-tag">Primo PI Assistant™ · v3.0</span>
     <div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border-mid);border-radius:var(--radius);padding:4px 10px;">
-      <label style="font-size:10px;font-weight:600;color:var(--text-muted);white-space:nowrap;">AI KEY</label>
-      <input id="gemini-api-key" type="password" placeholder="Paste Gemini API key..." 
-        style="border:none;background:none;font-family:'Inter',sans-serif;font-size:11px;color:var(--text);outline:none;width:180px;"
-        oninput="autoSaveKey(this.value)">
-      <span id="api-status" style="font-size:10px;color:var(--green);white-space:nowrap;"></span>
+      <label style="font-size:10px;font-weight:600;color:var(--text-muted);white-space:nowrap;">CLAUDE KEY</label>
+      <input id="gemini-api-key" type="password" placeholder="Paste sk-ant-... key here" 
+        style="border:none;background:none;font-family:'Inter',sans-serif;font-size:11px;color:var(--text);outline:none;width:200px;">
+      <button onclick="saveAndTestKey()" style="padding:3px 9px;background:var(--green);color:white;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;">Save & Test</button>
+      <button onclick="clearApiKey()" style="padding:3px 7px;background:none;color:var(--text-muted);border:1px solid var(--border-mid);border-radius:6px;font-family:'Inter',sans-serif;font-size:10px;cursor:pointer;">Clear</button>
+      <span id="api-status" style="font-size:10px;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis;"></span>
     </div>
     <div class="primeone-badge">PRIME<span>O</span>ne™</div>
     <button class="new-conv-btn" onclick="resetAll()">+ New Conversation</button>
@@ -425,7 +426,7 @@ textarea::placeholder{color:var(--text-hint);}
   </div>
   <div class="content-area">
     <div style="padding:6px 1.5rem;background:var(--green-pale);border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:8px;">
-      <span>🔑 Enter your Gemini API key in the header above to enable AI features.</span>
+      <span>🔑 Enter your Anthropic (Claude) API key in the header above to enable AI features. Get one at console.anthropic.com</span>
       <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--green);font-weight:600;text-decoration:none;">Get a free key →</a>
       <button onclick="clearApiKey()" style="padding:2px 8px;background:none;color:var(--text-muted);border:1px solid var(--border-mid);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:10px;cursor:pointer;margin-left:auto;">Clear saved key</button>
     </div>
@@ -442,7 +443,7 @@ textarea::placeholder{color:var(--text-hint);}
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
           </button>
         </div>
-        <div class="input-hint">Press Enter to send · Shift+Enter for new line · Powered by Gemini AI</div>
+        <div class="input-hint">Press Enter to send · Shift+Enter for new line · Powered by Claude AI</div>
       </div>
     </div>
   </div>
@@ -1193,7 +1194,7 @@ ${steps.length>0?`
 
 <!-- AI ANALYSIS -->
 <div id="d-ai-analysis" style="display:none">
-<div class="section-header"><span class="section-title">AI-Powered Analysis</span><span class="badge badge-blue">Gemini AI</span></div>
+<div class="section-header"><span class="section-title">AI-Powered Analysis</span><span class="badge badge-blue">Claude AI</span></div>
 <div id="ai-root-cause" class="ai-card">
   <div class="ai-card-header"><span class="ai-card-title">Root Cause Analysis (5-Why)</span><span class="badge badge-amber">Analyzing...</span></div>
   <div class="ai-loading">⏳ Running AI analysis...</div>
@@ -1327,7 +1328,7 @@ function dSection(id,btn){
   if(btn)btn.classList.add('active');
   // Trigger AI if needed
   if(id==='ai-analysis'||id==='grc'){
-    const key=localStorage.getItem('primo_gemini_key')||'';
+    const key=localStorage.getItem('primo_claude_key')||'';
     if(!key){
       ['ai-root-cause','ai-benchmarks','ai-recommendations','ai-action-plan','ai-grc'].forEach(aid=>{
         const el=document.getElementById(aid);
@@ -1341,16 +1342,26 @@ function dSection(id,btn){
 // AI ANALYSIS (Gemini)
 // ═══════════════════════════════════════════
 async function callGemini(prompt){
-  const key=(localStorage.getItem('primo_gemini_key')||'').trim()||(document.getElementById('gemini-api-key')?.value||'').trim();
+  const key=(localStorage.getItem('primo_claude_key')||'').trim()||(document.getElementById('gemini-api-key')?.value||'').trim();
   if(!key)return {error:'NO_KEY',text:null};
   try{
-    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:800,temperature:0.7}})
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
     });
     const data=await res.json();
     if(data.error)return {error:data.error.message,text:null};
-    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||null;
+    const text=data.content?.[0]?.text||null;
     return {error:null,text};
   }catch(e){return {error:e.message,text:null};}
 }
@@ -1379,7 +1390,7 @@ async function runAIAnalysis(d,metrics){
     if(result.text){
       el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge ${a.badge}">AI Generated</span></div><div class="ai-content">${formatAI(result.text)}</div>`;
     }else if(result.error==='NO_KEY'){
-      el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge badge-amber">Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Paste your Gemini API key in the header field at the top of the page.</div>`;
+      el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge badge-amber">Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Paste your Anthropic (Claude) API key in the header field at the top of the page.</div>`;
     }else{
       el.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">${a.title}</span><span class="badge badge-red">Error</span></div><div style="font-size:12px;color:var(--red)">API Error: ${result.error||'Unknown error'}. Please check your key and try again.</div>`;
     }
@@ -1392,7 +1403,7 @@ async function runAIAnalysis(d,metrics){
     if(grcResult.text){
       grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-green">AI Generated</span></div><div class="ai-content">${formatAI(grcResult.text)}</div>`;
     }else if(grcResult.error==='NO_KEY'){
-      grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-amber">Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Paste your Gemini API key in the header field at the top of the page.</div>`;
+      grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-amber">Key Required</span></div><div style="font-size:12px;color:var(--text-muted)">Paste your Anthropic (Claude) API key in the header field at the top of the page.</div>`;
     }else{
       grcEl.innerHTML=`<div class="ai-card-header"><span class="ai-card-title">Control Gap Analysis</span><span class="badge badge-red">Error</span></div><div style="font-size:12px;color:var(--red)">API Error: ${grcResult.error||'Unknown error'}.</div>`;
     }
@@ -1422,7 +1433,7 @@ async function generateExecSummary(){
   el.innerHTML='<div class="ai-loading" style="padding:1rem">⏳ Generating Executive Summary...</div>';
   const d=smeData;
   const result=await callGemini(`You are a management consultant. Write a one-page executive summary for a process improvement initiative. Use professional language suitable for banking leadership. Include: Problem Statement, Current State (key metrics), Proposed Improvements, Expected Benefits (ROI and non-financial), Recommended Next Steps, and Risk Considerations. Context: Process: ${d.processName}, Department: ${d.department}, Pain point: ${d.painPoint}, Cycle time: ${d.cycleTime}min target ${d.targetCycleTime}min, Error rate: ${d.errorRate}% target ${d.targetErrorRate}%, SLA: ${d.slaCompliance}% target ${d.targetSLA}%.`);
-  el.innerHTML=result.text?`<div class="section-card"><div class="section-header"><span class="section-title">Executive Summary</span><button class="dash-btn" onclick="downloadText('exec-summary.txt','${(result.text||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Gemini API key in the header to enable AI generation.</div>';
+  el.innerHTML=result.text?`<div class="section-card"><div class="section-header"><span class="section-title">Executive Summary</span><button class="dash-btn" onclick="downloadText('exec-summary.txt','${(result.text||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Anthropic (Claude) API key in the header to enable AI generation.</div>';
 }
 
 async function generateSOP(){
@@ -1430,7 +1441,7 @@ async function generateSOP(){
   el.innerHTML='<div class="ai-loading" style="padding:1rem">⏳ Generating SOP First Draft...</div>';
   const d=smeData;
   const result=await callGemini(`You are a banking operations documentation specialist. Write a first-draft Standard Operating Procedure (SOP) for the improved version of this process. Include: 1. Purpose and Scope, 2. Roles and Responsibilities, 3. Prerequisites, 4. Step-by-Step Procedure (based on these steps: ${d.processSteps||'Not captured'}), 5. Exception Handling, 6. Quality Controls, 7. Regulatory Compliance Notes, 8. Document Control. Process: ${d.processName}, Department: ${d.department}. Write it as a proper professional SOP document.`);
-  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">SOP First Draft — ${d.processName}</span><button class="dash-btn" onclick="downloadText('SOP-${(d.processName||'process').replace(/\s/g,'-')}.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Gemini API key in the header to enable AI generation.</div>';
+  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">SOP First Draft — ${d.processName}</span><button class="dash-btn" onclick="downloadText('SOP-${(d.processName||'process').replace(/\s/g,'-')}.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Anthropic (Claude) API key in the header to enable AI generation.</div>';
 }
 
 async function generateChangeManagement(){
@@ -1438,7 +1449,7 @@ async function generateChangeManagement(){
   el.innerHTML='<div class="ai-loading" style="padding:1rem">⏳ Generating Change Management Plan...</div>';
   const d=smeData;
   const result=await callGemini(`You are an organizational change management expert specializing in banking. Create a practical change management plan for this process improvement initiative. Include: 1. Change Impact Assessment, 2. Stakeholder Analysis (based on: ${d.stakeholders}, other depts: ${d.internalDepts||'unknown'}), 3. Communication Plan, 4. Training Plan, 5. Resistance Management, 6. Success Metrics, 7. Sustainment Strategy. Process: ${d.processName}, Pain point: ${d.painPoint}. Be specific and actionable.`);
-  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">Change Management Plan</span><button class="dash-btn" onclick="downloadText('change-management-plan.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Gemini API key in the header to enable AI generation.</div>';
+  el.innerHTML=result?`<div class="section-card"><div class="section-header"><span class="section-title">Change Management Plan</span><button class="dash-btn" onclick="downloadText('change-management-plan.txt','${(result||'').replace(/'/g,"\\'")}')">↓ Download</button></div><div class="ai-content">${formatAI(result.text)}</div></div>`:'<div style="font-size:12px;color:var(--text-muted);padding:1rem">Paste your Anthropic (Claude) API key in the header to enable AI generation.</div>';
 }
 
 function generateProcessMap(){
@@ -1503,18 +1514,28 @@ async function sendAuto(){
   tw.innerHTML=`<div class="msg-avatar av-primo">🤖</div><div class="typing-ind"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`;
   document.getElementById('auto-messages').appendChild(tw);scrollBot('auto-messages');
   try{
-    const key=localStorage.getItem('primo_gemini_key')||document.getElementById('gemini-api-key')?.value?.trim()||'';
-    if(!key){tw.remove();appendMsg('auto-messages','bot','Please save your Gemini API key using the field above.','av-primo');autoThinking=false;document.getElementById('auto-send').disabled=false;return;}
-    const contents=[{role:'user',parts:[{text:'SYSTEM:\n'+AUTO_SYSTEM}]},{role:'model',parts:[{text:'Understood. Ready to assess automation readiness as the Primo PI Assistant Automation Agent.'}]}];
-    autoHistory.forEach(m=>contents.push({role:m.role==='user'?'user':'model',parts:[{text:m.content}]}));
-    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents,generationConfig:{maxOutputTokens:1000,temperature:0.7}})
+    const key=localStorage.getItem('primo_claude_key')||document.getElementById('gemini-api-key')?.value?.trim()||'';
+    if(!key){tw.remove();appendMsg('auto-messages','bot','Please enter your Anthropic API key in the header field above.','av-primo');autoThinking=false;document.getElementById('auto-send').disabled=false;return;}
+    const messages=autoHistory.map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.content}));
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1000,
+        system:AUTO_SYSTEM,
+        messages:messages.length>0?messages:[{role:'user',content:'Hello, I am ready to begin the automation assessment.'}]
+      })
     });
     const data=await res.json();tw.remove();
     if(data.error){appendMsg('auto-messages','bot','API Error: '+data.error.message,'av-primo');}
     else{
-      const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'No response.';
+      const reply=data.content?.[0]?.text||'No response.';
       autoHistory.push({role:'assistant',content:reply});
       appendMsg('auto-messages','bot',formatAI(reply),'av-primo');
     }
@@ -1524,7 +1545,7 @@ async function sendAuto(){
 
 function initAutoBot(){
   appendMsg('auto-messages','bot',
-    `Welcome to the <strong>Automation Agent</strong> — powered by Gemini AI.<br><br>I assess whether a process is ready for automation using the Primo structural scorecard and financial gates.<br><br><strong>Both gates must pass:</strong><br>• Structural Readiness ≥ 80/100<br>• Savings ≥ $25K · Payback ≤ 12 months · ROI ≥ 50%<br><br>Have you completed process improvement, or are you starting a fresh assessment?`,
+    `Welcome to the <strong>Automation Agent</strong> — powered by Claude AI.<br><br>I assess whether a process is ready for automation using the Primo structural scorecard and financial gates.<br><br><strong>Both gates must pass:</strong><br>• Structural Readiness ≥ 80/100<br>• Savings ≥ $25K · Payback ≤ 12 months · ROI ≥ 50%<br><br>Have you completed process improvement, or are you starting a fresh assessment?`,
     'av-primo');
   addChips('auto-messages',['Coming from PI Agent — process improved','Starting fresh assessment','Review decision logic','Import PI results from workbook'],v=>{document.getElementById('autoInput').value=v;sendAuto();});
 }
@@ -1532,35 +1553,64 @@ function initAutoBot(){
 // ═══════════════════════════════════════════
 // API KEY
 // ═══════════════════════════════════════════
-function autoSaveKey(val){
-  const key=val.trim();
-  if(key.length>10){
-    localStorage.setItem('primo_gemini_key',key);
-    const st=document.getElementById('api-status');
-    if(st){st.textContent='✓ Saved';st.style.color='var(--green)';}
-  }
-}
-function saveApiKey(){
+function saveAndTestKey(){
   const inp=document.getElementById('gemini-api-key');
-  const key=inp?.value?.trim();
-  if(!key)return;
-  localStorage.setItem('primo_gemini_key',key);
+  const key=(inp?.value||'').trim();
+  if(!key){setKeyStatus('⚠️ Paste your sk-ant-... key first','#C05020');return;}
+  if(!key.startsWith('sk-ant-')){setKeyStatus('⚠️ Key should start with sk-ant-','#C05020');return;}
+  localStorage.setItem('primo_claude_key',key);
+  inp.value='';
+  inp.placeholder='Testing key...';
+  setKeyStatus('Testing...','var(--text-muted)');
+  // Test the key with a minimal API call
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:10,
+      messages:[{role:'user',content:'Say OK'}]
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.content&&d.content[0]){
+      inp.placeholder='Key saved & working ✓ — paste to update';
+      setKeyStatus('✓ Key working!','var(--green)');
+    } else if(d.error){
+      inp.placeholder='Key error — paste a new key';
+      setKeyStatus('✗ '+d.error.message,'var(--red)');
+      localStorage.removeItem('primo_claude_key');
+    }
+  })
+  .catch(e=>{
+    inp.placeholder='Connection error';
+    setKeyStatus('✗ '+e.message,'var(--red)');
+  });
+}
+function saveApiKey(){saveAndTestKey();}
+function autoSaveKey(val){}
+function setKeyStatus(msg,color){
   const st=document.getElementById('api-status');
-  if(st){st.textContent='✓ Saved';st.style.color='var(--green)';}
+  if(st){st.textContent=msg;st.style.color=color;}
 }
 function clearApiKey(){
-  localStorage.removeItem('primo_gemini_key');
-  const inp=document.getElementById('gemini-api-key');if(inp)inp.value='';
-  const st=document.getElementById('api-status');if(st)st.textContent='Cleared';
+  localStorage.removeItem('primo_claude_key');
+  const inp=document.getElementById('gemini-api-key');
+  if(inp){inp.value='';inp.placeholder='Paste sk-ant-... key here';}
+  setKeyStatus('Cleared','var(--text-muted)');
 }
 function initApiKeyBar(){
-  const saved=localStorage.getItem('primo_gemini_key');
+  const saved=localStorage.getItem('primo_claude_key');
   if(saved){
-    const st=document.getElementById('api-status');
-    if(st){st.textContent='✓ Key ready';st.style.color='var(--green)';}
-    // Show masked key hint
     const inp=document.getElementById('gemini-api-key');
     if(inp)inp.placeholder='Key saved ✓ — paste to update';
+    setKeyStatus('✓ Key saved','var(--green)');
   }
 }
 
